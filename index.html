@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>瑪雅奇異點觀測儀 - 終極運算版</title>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; }
+        canvas { position: fixed; top: 0; left: 0; z-index: 1; }
+        #ui-wrapper {
+            position: relative; z-index: 10; display: flex; justify-content: center;
+            align-items: center; width: 100vw; height: 100vh;
+            perspective: 1800px;
+        }
+        .card {
+            background: rgba(15, 15, 10, 0.9);
+            backdrop-filter: blur(20px);
+            padding: 45px; border-radius: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            text-align: center; width: 380px; color: #fff;
+            transition: all 1.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+            transform-style: preserve-3d;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.1);
+        }
+        /* 宇宙奇異點吸入效果 */
+        .swallowed {
+            transform: translateZ(-1200px) scaleX(0.01) scaleY(35) rotateX(70deg) rotateY(15deg) rotateZ(720deg) translateY(300px);
+            opacity: 0; filter: brightness(18) blur(8px) contrast(0.4);
+        }
+        h2 { color: #d4af37; letter-spacing: 5px; margin-bottom: 10px; text-shadow: 0 0 10px rgba(212, 175, 55, 0.5); }
+        .hint { color: #aaa; font-size: 0.9rem; margin-bottom: 25px; line-height: 1.6; }
+        input {
+            padding: 12px; width: 240px; border-radius: 8px; border: 1px solid #d4af37;
+            background: #000; color: #f1c40f; font-size: 1.6rem; text-align: center;
+            margin-bottom: 25px; outline: none; letter-spacing: 3px;
+        }
+        button {
+            background: linear-gradient(135deg, #f1c40f, #d4af37);
+            color: #000; border: none; padding: 12px 45px; border-radius: 50px;
+            cursor: pointer; font-weight: 900; letter-spacing: 2px; font-size: 1rem;
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
+        }
+        #result-display {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 20; display: none; text-align: center; width: 100%;
+        }
+        .ball-container { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; perspective: 1000px; }
+        .ball {
+            width: 75px; height: 75px;
+            background: radial-gradient(circle at 30% 30%, #fff, #d4af37 45%, #5e4b26);
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            color: #000; font-weight: 900; font-size: 2.2rem;
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.7); border: 2px solid #fff;
+            animation: eject 0.6s cubic-bezier(0.17, 0.89, 0.32, 1.27) backwards;
+        }
+        @keyframes eject {
+            0% { transform: scale(0) rotate(-720deg) translateZ(-1000px); opacity: 0; }
+            100% { transform: scale(1) rotate(0) translateZ(0); opacity: 1; }
+        }
+        #flash { position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; opacity:0; z-index:100; pointer-events:none; }
+        .maya-info { color: #d4af37; font-size: 1.2rem; margin-bottom: 30px; letter-spacing: 2px; }
+    </style>
+</head>
+<body>
+<div id="flash"></div>
+<canvas id="bhCanvas"></canvas>
+<div id="ui-wrapper">
+    <div class="card" id="mainCard">
+        <h2>瑪雅日曆之宇宙奇異點運算器</h2>
+        <p class="hint">輸入西元年換算瑪雅日曆公式<br>坍縮出 1-49 之命定號碼</p>
+        <label for="dateInput" style="display:none;">西元日期</label>
+        <input type="text" id="dateInput" placeholder="20260309" maxlength="8" aria-label="西元日期">
+        <br>
+        <button onclick="ignite()">開始時空觀測</button>
+    </div>
+</div>
+
+<div id="result-display">
+    <div class="maya-info" id="mayaLongCount">計算中...</div>
+    <div class="ball-container" id="ballBox"></div>
+    <p style="color:#666; margin-top:50px;">奇異點參數：<span id="jdVal"></span></p>
+    <button onclick="location.reload()" style="margin-top:30px; background:none; border:1px solid #333; color:#555; cursor:pointer; padding:10px 25px; border-radius:20px;">重新觀測</button>
+</div>
+
+<script>
+/** 核心：換算奇異點公式 **/
+function calculateSingularity(inputDate) {
+    const y = parseInt(inputDate.substring(0, 4));
+    const m = parseInt(inputDate.substring(4, 6));
+    const d = parseInt(inputDate.substring(6, 8));
+
+    // 1. 轉換儒略日 (JD)
+    const target = new Date(y, m - 1, d);
+    const ref = new Date(2000, 0, 1);
+    const jd = 2451545 + Math.floor((target - ref) / 86400000);
+
+    // 2. 轉換瑪雅長紀曆
+    let totalDays = jd - 584283;
+    if (totalDays < 0) return null;
+
+    const Baktun = Math.floor(totalDays / 144000);
+    totalDays %= 144000;
+    const Katun = Math.floor(totalDays / 7200);
+    totalDays %= 7200;
+    const Tun = Math.floor(totalDays / 360);
+    totalDays %= 360;
+    const Uinal = Math.floor(totalDays / 20);
+    const Kin = totalDays % 20;
+
+    const mayaString = `瑪雅時間線：${Baktun}.${Katun}.${Tun}.${Uinal}.${Kin}`;
+
+    // 3. 奇異點選號邏輯 (基於瑪雅日期種子)
+    const seed = jd + (Baktun * 100) + (Kin * 7);
+    const lucky = [];
+    const pool = Array.from({length: 49}, (_, i) => i + 1);
+
+    // 自定義種子隨機函數
+    let s = seed;
+    const rng = () => {
+        s = (s * 16807) % 2147483647;
+        return (s - 1) / 2147483646;
+    };
+
+    for (let i = 0; i < 6; i++) {
+        let idx = Math.floor(rng() * pool.length);
+        lucky.push(pool.splice(idx, 1)[0]);
+    }
+
+    return {
+        lucky: lucky.sort((a, b) => a - b),
+        maya: mayaString,
+        jd: jd
+    };
+}
+
+/** 背景黑洞粒子系統 **/
+const canvas = document.getElementById('bhCanvas');
+const ctx = canvas.getContext('2d');
+let stars = [], isAbsorbing = false;
+function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+window.addEventListener('resize', resize);
+resize();
+
+class Star {
+    constructor() { this.reset(); }
+    reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 1.2;
+        this.opacity = Math.random();
+        this.vx = (Math.random() - 0.5) * 0.4;
+        this.vy = (Math.random() - 0.5) * 0.4;
+    }
+    update() {
+        if (isAbsorbing) {
+            let dx = canvas.width / 2 - this.x;
+            let dy = canvas.height / 2 - this.y;
+            let dist = Math.sqrt(dx*dx + dy*dy);
+            this.x += dx * 0.12; this.y += dy * 0.12;
+            if (dist < 5) this.opacity = 0;
+        } else {
+            this.x += this.vx; this.y += this.vy;
+            if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+            if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+        }
+    }
+    draw() {
+        ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+        ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+    }
+}
+for(let i=0; i<600; i++) stars.push(new Star());
+
+function animate() {
+    ctx.fillStyle = isAbsorbing ? 'rgba(0, 0, 0, 0.9)' : 'rgba(0, 0, 0, 0.4)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    stars.forEach(s => { s.update(); s.draw(); });
+    requestAnimationFrame(animate);
+}
+animate();
+
+/** 點擊火化與噴發 **/
+function ignite() {
+    const val = document.getElementById('dateInput').value;
+    if (val.length !== 8) return alert("請輸入 8 碼西元日期");
+    const res = calculateSingularity(val);
+    if (!res) return alert("日期超出瑪雅曆範圍");
+
+    isAbsorbing = true;
+    document.getElementById('mainCard').classList.add('swallowed');
+    const flash = document.getElementById('flash');
+
+    setTimeout(() => {
+        flash.style.opacity = '1';
+        setTimeout(() => {
+            flash.style.transition = 'opacity 1.5s';
+            flash.style.opacity = '0';
+            isAbsorbing = false;
+            showResults(res);
+        }, 50);
+    }, 1200);
+}
+
+function showResults(res) {
+    document.getElementById('ui-wrapper').style.display = 'none';
+    document.getElementById('mayaLongCount').innerText = res.maya;
+    document.getElementById('jdVal').innerText = res.jd;
+    const box = document.getElementById('ballBox');
+    res.lucky.forEach((n, i) => {
+        const b = document.createElement('div');
+        b.className = 'ball';
+        b.style.animationDelay = `${i * 0.2}s`;
+        b.innerText = n;
+        box.appendChild(b);
+    });
+    document.getElementById('result-display').style.display = 'block';
+}
+</script>
+</body>
+</html>
