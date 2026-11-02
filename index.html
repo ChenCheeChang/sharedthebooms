@@ -1,219 +1,4543 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <title>瑪雅奇異點觀測儀 - 終極運算版</title>
-    <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; }
-        canvas { position: fixed; top: 0; left: 0; z-index: 1; }
-        #ui-wrapper {
-            position: relative; z-index: 10; display: flex; justify-content: center;
-            align-items: center; width: 100vw; height: 100vh;
-            perspective: 1800px;
-        }
-        .card {
-            background: rgba(15, 15, 10, 0.9);
-            backdrop-filter: blur(20px);
-            padding: 45px; border-radius: 20px;
-            border: 1px solid rgba(212, 175, 55, 0.4);
-            text-align: center; width: 380px; color: #fff;
-            transition: all 1.8s cubic-bezier(0.25, 0.1, 0.25, 1);
-            transform-style: preserve-3d;
-            box-shadow: 0 0 30px rgba(212, 175, 55, 0.1);
-        }
-        /* 宇宙奇異點吸入效果 */
-        .swallowed {
-            transform: translateZ(-1200px) scaleX(0.01) scaleY(35) rotateX(70deg) rotateY(15deg) rotateZ(720deg) translateY(300px);
-            opacity: 0; filter: brightness(18) blur(8px) contrast(0.4);
-        }
-        h2 { color: #d4af37; letter-spacing: 5px; margin-bottom: 10px; text-shadow: 0 0 10px rgba(212, 175, 55, 0.5); }
-        .hint { color: #aaa; font-size: 0.9rem; margin-bottom: 25px; line-height: 1.6; }
-        input {
-            padding: 12px; width: 240px; border-radius: 8px; border: 1px solid #d4af37;
-            background: #000; color: #f1c40f; font-size: 1.6rem; text-align: center;
-            margin-bottom: 25px; outline: none; letter-spacing: 3px;
-        }
-        button {
-            background: linear-gradient(135deg, #f1c40f, #d4af37);
-            color: #000; border: none; padding: 12px 45px; border-radius: 50px;
-            cursor: pointer; font-weight: 900; letter-spacing: 2px; font-size: 1rem;
-            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
-        }
-        #result-display {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            z-index: 20; display: none; text-align: center; width: 100%;
-        }
-        .ball-container { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; perspective: 1000px; }
-        .ball {
-            width: 75px; height: 75px;
-            background: radial-gradient(circle at 30% 30%, #fff, #d4af37 45%, #5e4b26);
-            border-radius: 50%; display: flex; justify-content: center; align-items: center;
-            color: #000; font-weight: 900; font-size: 2.2rem;
-            box-shadow: 0 0 40px rgba(212, 175, 55, 0.7); border: 2px solid #fff;
-            animation: eject 0.6s cubic-bezier(0.17, 0.89, 0.32, 1.27) backwards;
-        }
-        @keyframes eject {
-            0% { transform: scale(0) rotate(-720deg) translateZ(-1000px); opacity: 0; }
-            100% { transform: scale(1) rotate(0) translateZ(0); opacity: 1; }
-        }
-        #flash { position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; opacity:0; z-index:100; pointer-events:none; }
-        .maya-info { color: #d4af37; font-size: 1.2rem; margin-bottom: 30px; letter-spacing: 2px; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>暗夜莊園：驚悚炸彈對決</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;900&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background-color: #06070c;
+      font-family: 'Noto Sans TC', 'Inter', sans-serif;
+      touch-action: none;
+    }
+    #gameCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+    .glass-panel {
+      background: linear-gradient(160deg, rgba(16, 19, 32, 0.96), rgba(8, 10, 18, 0.98));
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.88), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    }
+    .ctrl-btn {
+      position: relative;
+      border-radius: 9999px;
+      background: radial-gradient(circle at 30% 25%, rgba(58, 68, 102, 0.95), rgba(16, 20, 36, 0.98));
+      border: 2.4px solid rgba(148, 163, 184, 0.48);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.78), inset 0 2px 4px rgba(255, 255, 255, 0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: none;
+      cursor: pointer;
+      will-change: transform;
+    }
+    .ctrl-btn.active-press {
+      transform: scale(0.88);
+      border-color: #fb7185;
+      background: radial-gradient(circle at 30% 25%, rgba(159, 18, 57, 0.98), rgba(45, 12, 28, 1));
+      box-shadow: 0 0 16px rgba(244, 63, 94, 0.65), inset 0 2px 6px rgba(255, 255, 255, 0.3);
+    }
+    .action-bomb-btn {
+      background: radial-gradient(circle at 30% 25%, rgba(225, 29, 72, 0.96), rgba(95, 12, 34, 0.99));
+      border: 3px solid rgba(251, 113, 133, 0.82);
+      box-shadow: 0 8px 22px rgba(225, 29, 72, 0.55), inset 0 2px 6px rgba(255, 255, 255, 0.32);
+    }
+    .action-bomb-btn.active-press {
+      transform: scale(0.88);
+      background: radial-gradient(circle at 30% 25%, rgba(244, 63, 94, 1), rgba(159, 18, 57, 1));
+      border-color: #ffffff;
+    }
+    .action-weapon-btn {
+      background: radial-gradient(circle at 30% 25%, rgba(124, 58, 237, 0.96), rgba(52, 16, 108, 0.99));
+      border: 3px solid rgba(196, 181, 253, 0.82);
+      box-shadow: 0 8px 22px rgba(124, 58, 237, 0.55), inset 0 2px 6px rgba(255, 255, 255, 0.32);
+    }
+    .action-weapon-btn.empty-weapon {
+      background: radial-gradient(circle at 30% 25%, rgba(39, 43, 58, 0.78), rgba(15, 18, 28, 0.88));
+      border: 2px dashed rgba(148, 163, 184, 0.32);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
+      opacity: 0.68;
+    }
+    .char-card {
+      transition: transform 0.18s ease, border-color 0.18s ease;
+      cursor: pointer;
+    }
+    .char-card:hover {
+      transform: translateY(-3px);
+    }
+    .char-card.selected {
+      border-color: #f43f5e;
+      background: linear-gradient(145deg, rgba(244, 63, 94, 0.28), rgba(15, 23, 42, 0.96));
+      box-shadow: 0 0 26px rgba(244, 63, 94, 0.48);
+    }
+  </style>
 </head>
-<body>
-<div id="flash"></div>
-<canvas id="bhCanvas"></canvas>
-<div id="ui-wrapper">
-    <div class="card" id="mainCard">
-        <h2>瑪雅日曆之宇宙奇異點運算器</h2>
-        <p class="hint">輸入西元年換算瑪雅日曆公式<br>坍縮出 1-49 之命定號碼</p>
-        <label for="dateInput" style="display:none;">西元日期</label>
-        <input type="text" id="dateInput" placeholder="20260309" maxlength="8" aria-label="西元日期">
-        <br>
-        <button onclick="ignite()">開始時空觀測</button>
+<body class="relative select-none overflow-hidden bg-[#06070c] text-slate-100">
+
+  <!-- Main Fullscreen Canvas -->
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- Minimal Top HUD (Icons & Avatars only, no chatty text) -->
+  <div id="topHud" class="fixed top-0 left-0 right-0 z-20 pointer-events-none flex items-start justify-between p-2.5 sm:p-4 hidden">
+    <!-- 4 Player Alive/Armor Status Pills -->
+    <div id="statusStrip" class="flex items-center gap-1.5 sm:gap-2.5 bg-slate-950/90 px-2.5 py-1.5 rounded-full border border-slate-700/60 shadow-xl pointer-events-auto">
     </div>
-</div>
 
-<div id="result-display">
-    <div class="maya-info" id="mayaLongCount">計算中...</div>
-    <div class="ball-container" id="ballBox"></div>
-    <p style="color:#666; margin-top:50px;">奇異點參數：<span id="jdVal"></span></p>
-    <button onclick="location.reload()" style="margin-top:30px; background:none; border:1px solid #333; color:#555; cursor:pointer; padding:10px 25px; border-radius:20px;">重新觀測</button>
-</div>
+    <!-- Center 10-Second Countdown Indicator -->
+    <div id="countdownBadge" class="hidden pointer-events-none flex flex-col items-center justify-center">
+      <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-rose-950/95 border-2 border-rose-500 flex items-center justify-center shadow-lg">
+        <span id="countdownNum" class="text-2xl sm:text-3xl font-black text-rose-100 tracking-tighter">10</span>
+      </div>
+    </div>
 
-<script>
-/** 核心：換算奇異點公式 **/
-function calculateSingularity(inputDate) {
-    const y = parseInt(inputDate.substring(0, 4));
-    const m = parseInt(inputDate.substring(4, 6));
-    const d = parseInt(inputDate.substring(6, 8));
+    <!-- Top Right Utility Circular Buttons (Camera Zoom Toggle & Audio Mute Toggle) -->
+    <div class="flex items-center gap-2 pointer-events-auto">
+      <button id="btnCameraMode" type="button" aria-label="Toggle Camera" class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-slate-900/90 border border-slate-600/70 flex items-center justify-center text-slate-200 active:scale-90 transition shadow-lg">
+        <svg id="iconCameraFollow" class="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <circle cx="11" cy="11" r="7"></circle>
+          <path d="M21 21l-4.35-4.35M11 8v6M8 11h6" stroke-linecap="round"></path>
+        </svg>
+        <svg id="iconCameraFull" class="w-5 h-5 text-sky-400 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+      <button id="btnAudioToggle" type="button" aria-label="Toggle Audio" class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-slate-900/90 border border-slate-600/70 flex items-center justify-center text-slate-200 active:scale-90 transition shadow-lg">
+        <svg id="iconSoundOn" class="w-5 h-5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M11 5L6 9H2v6h4l5 4V5z" stroke-linejoin="round"></path>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14" stroke-linecap="round"></path>
+        </svg>
+        <svg id="iconSoundOff" class="w-5 h-5 text-slate-500 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M11 5L6 9H2v6h4l5 4V5z" stroke-linejoin="round"></path>
+          <path d="M23 9l-6 6M17 9l6 6" stroke-linecap="round"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
 
-    // 1. 轉換儒略日 (JD)
-    const target = new Date(y, m - 1, d);
-    const ref = new Date(2000, 0, 1);
-    const jd = 2451545 + Math.floor((target - ref) / 86400000);
+  <!-- Bottom Circular Controls Overlay (Strictly Pure Circular Icon Buttons, Zero Extra Text) -->
+  <div id="bottomControls" class="fixed bottom-0 left-0 right-0 z-20 pointer-events-none flex items-end justify-between px-4 pb-5 sm:px-8 sm:pb-7 hidden">
+    <!-- Left Directional Pad (4 Circular Buttons: Up, Down, Left, Right) -->
+    <div id="dpadContainer" class="relative w-40 h-40 sm:w-48 sm:h-48 pointer-events-auto touch-none">
+      <!-- Center tactile hub -->
+      <div class="absolute inset-0 m-auto w-12 h-12 rounded-full bg-slate-900/75 border border-slate-600/50 pointer-events-none flex items-center justify-center">
+        <div class="w-3 h-3 rounded-full bg-slate-500/50"></div>
+      </div>
 
-    // 2. 轉換瑪雅長紀曆
-    let totalDays = jd - 584283;
-    if (totalDays < 0) return null;
+      <!-- UP -->
+      <button id="btnUp" type="button" data-dir="up" aria-label="Up" class="ctrl-btn absolute top-0 left-1/2 -translate-x-1/2 w-14 h-14 sm:w-16 sm:h-16">
+        <svg class="w-7 h-7 text-slate-100 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+          <path d="M18 15l-6-6-6 6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <!-- DOWN -->
+      <button id="btnDown" type="button" data-dir="down" aria-label="Down" class="ctrl-btn absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-14 sm:w-16 sm:h-16">
+        <svg class="w-7 h-7 text-slate-100 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+          <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <!-- LEFT -->
+      <button id="btnLeft" type="button" data-dir="left" aria-label="Left" class="ctrl-btn absolute left-0 top-1/2 -translate-y-1/2 w-14 h-14 sm:w-16 sm:h-16">
+        <svg class="w-7 h-7 text-slate-100 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+          <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <!-- RIGHT -->
+      <button id="btnRight" type="button" data-dir="right" aria-label="Right" class="ctrl-btn absolute right-0 top-1/2 -translate-y-1/2 w-14 h-14 sm:w-16 sm:h-16">
+        <svg class="w-7 h-7 text-slate-100 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+          <path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
 
-    const Baktun = Math.floor(totalDays / 144000);
-    totalDays %= 144000;
-    const Katun = Math.floor(totalDays / 7200);
-    totalDays %= 7200;
-    const Tun = Math.floor(totalDays / 360);
-    totalDays %= 360;
-    const Uinal = Math.floor(totalDays / 20);
-    const Kin = totalDays % 20;
+    <!-- Right Action Circular Buttons: Weapon Button + Place Bomb Button -->
+    <div class="flex items-end gap-3.5 sm:gap-5 pointer-events-auto">
+      <!-- Use Weapon Button -->
+      <button id="btnWeapon" type="button" aria-label="Use Weapon" class="ctrl-btn action-weapon-btn empty-weapon w-16 h-16 sm:w-20 sm:h-20 relative">
+        <svg id="weaponIconEmpty" class="w-7 h-7 sm:w-8 sm:h-8 text-slate-400 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="7" stroke-dasharray="3 3"/>
+          <circle cx="12" cy="12" r="2" fill="currentColor"/>
+        </svg>
+        <svg id="weaponIconFlame" class="w-8 h-8 sm:w-10 sm:h-10 text-amber-300 hidden pointer-events-none" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2C12 2 6 8.2 6 13.5C6 17.64 8.69 21 12 21C15.31 21 18 17.64 18 13.5C18 11.2 16.9 8.9 15.4 7.2C15.2 9.3 13.8 10.5 13.8 10.5C14.3 7.2 12 2 12 2Z" fill="#f97316" stroke="#fef08a" stroke-width="1.5"/>
+          <path d="M12 10.5C12 10.5 9.5 13 9.5 15.5C9.5 17.4 10.6 19 12 19C13.4 19 14.5 17.4 14.5 15.5C14.5 13 12 10.5 12 10.5Z" fill="#fef08a"/>
+        </svg>
+        <svg id="weaponIconThrow" class="w-8 h-8 sm:w-10 sm:h-10 text-sky-300 hidden pointer-events-none" viewBox="0 0 24 24" fill="none">
+          <path d="M3 16C5 8 12 4 20 8" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="2 2"/>
+          <path d="M17 5L20.5 8.2L16.5 10.5" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="10" cy="15" r="5.5" fill="#1e293b" stroke="#bae6fd" stroke-width="1.8"/>
+          <circle cx="14.5" cy="10.5" r="2" fill="#facc15"/>
+        </svg>
+        <svg id="weaponIconPowerBomb" class="w-8 h-8 sm:w-10 sm:h-10 text-fuchsia-300 hidden pointer-events-none" viewBox="0 0 24 24" fill="none">
+          <circle cx="11" cy="13" r="7.5" fill="#a21caf" stroke="#f5d0fe" stroke-width="1.6"/>
+          <path d="M15.5 7.5L18 5M18 5L20.5 5.5M18 5L18.5 2.5" stroke="#fde047" stroke-width="2" stroke-linecap="round"/>
+          <path d="M11 8.5L12.2 11.2L15 12L12.2 12.8L11 15.5L9.8 12.8L7 12L9.8 11.2L11 8.5Z" fill="#fde047"/>
+        </svg>
 
-    const mayaString = `瑪雅時間線：${Baktun}.${Katun}.${Tun}.${Uinal}.${Kin}`;
+        <div id="weaponChargesDots" class="absolute -top-1.5 -right-1 flex gap-1 bg-slate-950/90 px-1.5 py-0.5 rounded-full border border-slate-600/80 hidden pointer-events-none">
+        </div>
+      </button>
 
-    // 3. 奇異點選號邏輯 (基於瑪雅日期種子)
-    const seed = jd + (Baktun * 100) + (Kin * 7);
-    const lucky = [];
-    const pool = Array.from({length: 49}, (_, i) => i + 1);
+      <!-- Place Bomb Button -->
+      <button id="btnBomb" type="button" aria-label="Place Bomb" class="ctrl-btn action-bomb-btn w-20 h-20 sm:w-24 sm:h-24 relative">
+        <svg class="w-10 h-10 sm:w-12 sm:h-12 text-white pointer-events-none" viewBox="0 0 24 24" fill="none">
+          <circle cx="11" cy="13.5" r="7.5" fill="#1e1b2e" stroke="#fecdd3" stroke-width="2"/>
+          <circle cx="8.5" cy="11" r="2" fill="#fda4af" opacity="0.7"/>
+          <path d="M14.5 6.5L16.5 4.5C17.8 3.2 19.5 3.8 20 5" stroke="#fde047" stroke-width="2.2" stroke-linecap="round"/>
+          <circle cx="20" cy="5" r="2.2" fill="#facc15"/>
+        </svg>
+        <div id="powerBombRing" class="absolute inset-0 rounded-full border-2 border-fuchsia-400 hidden pointer-events-none"></div>
+      </button>
+    </div>
+  </div>
 
-    // 自定義種子隨機函數
-    let s = seed;
-    const rng = () => {
-        s = (s * 16807) % 2147483647;
-        return (s - 1) / 2147483646;
-    };
+  <!-- Character Selection Screen Modal -->
+  <div id="selectScreen" class="fixed inset-0 z-30 flex items-center justify-center p-3 sm:p-6 bg-black/90 overflow-y-auto">
+    <div class="glass-panel w-full max-w-2xl rounded-3xl p-4 sm:p-7 flex flex-col items-center border border-rose-500/35 my-auto">
+      <div class="flex items-center gap-2.5 mb-1">
+        <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+        <span class="text-xs sm:text-sm font-bold tracking-widest uppercase text-rose-400">2D 俯視驚悚動作對戰・精裝旗艦版</span>
+      </div>
+      <h1 class="text-2xl sm:text-4xl font-black text-white tracking-tight text-center mb-1">暗夜莊園：最後生還者</h1>
+      <p class="text-xs sm:text-sm text-slate-300 text-center mb-4 sm:mb-5">全細節角色肢體動作・八大精裝室內空間・炸毀家具與每 10 秒空投補給</p>
 
-    for (let i = 0; i < 6; i++) {
-        let idx = Math.floor(rng() * pool.length);
-        lucky.push(pool.splice(idx, 1)[0]);
-    }
+      <!-- 4 Distinct Chibi Characters Grid -->
+      <div id="charGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4 w-full mb-5">
+      </div>
 
-    return {
-        lucky: lucky.sort((a, b) => a - b),
-        maya: mayaString,
-        jd: jd
-    };
-}
+      <!-- Weapon & Rule Quick Visual Legend -->
+      <div class="w-full grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-900/85 rounded-2xl p-2.5 sm:p-3.5 border border-slate-800 mb-5 text-xs">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-lg bg-orange-500/20 border border-orange-400/40 flex items-center justify-center shrink-0 text-orange-300 font-bold">🔥</div>
+          <div>
+            <div class="font-bold text-slate-200">火槍 (3次)</div>
+            <div class="text-[11px] text-slate-400">雙手噴射5格火焰</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-lg bg-sky-500/20 border border-sky-400/40 flex items-center justify-center shrink-0 text-sky-300 font-bold">🧤</div>
+          <div>
+            <div class="font-bold text-slate-200">投彈手套 (3次)</div>
+            <div class="text-[11px] text-slate-400">舉起炸彈遠投4格</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-lg bg-fuchsia-500/20 border border-fuchsia-400/40 flex items-center justify-center shrink-0 text-fuchsia-300 font-bold">💣</div>
+          <div>
+            <div class="font-bold text-slate-200">強化炸彈 (3次)</div>
+            <div class="text-[11px] text-slate-400">十字半徑4格・炸毀家具</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center shrink-0 text-emerald-300 font-bold">🦺</div>
+          <div>
+            <div class="font-bold text-slate-200">防護衣 (穿戴)</div>
+            <div class="text-[11px] text-slate-400">受擊自動脫落保命一次</div>
+          </div>
+        </div>
+      </div>
 
-/** 背景黑洞粒子系統 **/
-const canvas = document.getElementById('bhCanvas');
-const ctx = canvas.getContext('2d');
-let stars = [], isAbsorbing = false;
-function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-window.addEventListener('resize', resize);
-resize();
+      <button id="btnStartGame" type="button" class="w-full sm:w-72 py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-rose-600 via-red-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white font-black text-base sm:text-lg tracking-wider shadow-lg active:scale-95 transition">
+        進入莊園對決
+      </button>
+    </div>
+  </div>
 
-class Star {
-    constructor() { this.reset(); }
-    reset() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 1.2;
-        this.opacity = Math.random();
-        this.vx = (Math.random() - 0.5) * 0.4;
-        this.vy = (Math.random() - 0.5) * 0.4;
-    }
-    update() {
-        if (isAbsorbing) {
-            let dx = canvas.width / 2 - this.x;
-            let dy = canvas.height / 2 - this.y;
-            let dist = Math.sqrt(dx*dx + dy*dy);
-            this.x += dx * 0.12; this.y += dy * 0.12;
-            if (dist < 5) this.opacity = 0;
-        } else {
-            this.x += this.vx; this.y += this.vy;
-            if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-            if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+  <!-- Game Over / Victory Screen Modal -->
+  <div id="resultScreen" class="fixed inset-0 z-30 hidden items-center justify-center p-4 bg-black/90">
+    <div class="glass-panel w-full max-w-md rounded-3xl p-6 sm:p-8 flex flex-col items-center text-center border border-slate-700/60">
+      <div id="resultBadge" class="w-32 h-32 rounded-full flex items-center justify-center mb-3 shadow-2xl bg-slate-900/90 border border-slate-700">
+        <canvas id="resultAvatarCanvas" width="128" height="128"></canvas>
+      </div>
+      <h2 id="resultTitle" class="text-2xl sm:text-3xl font-black text-white mb-1">最後生還者</h2>
+      <p id="resultSubtitle" class="text-sm text-slate-300 mb-6"></p>
+
+      <div class="flex gap-3 w-full">
+        <button id="btnChangeChar" type="button" class="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm border border-slate-600/60 active:scale-95 transition">
+          更換角色
+        </button>
+        <button id="btnPlayAgain" type="button" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white font-black text-sm shadow-lg active:scale-95 transition">
+          再次挑戰
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // 1. LOUDER, SINISTER HORROR BGM & SOUND ENGINE (Web Audio API + Compressor)
+    //    - 30-second looping spine-chilling horror BGM (Harmonic Minor + Tritone)
+    //    - Boosted volume via Master Compressor so mobile speakers sound rich & eerie
+    // =========================================================================
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.masterGain = null;
+        this.compressor = null;
+        this.muted = false;
+        this.bgmPlaying = false;
+        this.bgmTimer = null;
+        this.bgmStep = 0;
+        this.noiseBuffer = null;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) {
+            this.ctx = new AudioCtx();
+            this.compressor = this.ctx.createDynamicsCompressor();
+            this.compressor.threshold.setValueAtTime(-14, this.ctx.currentTime);
+            this.compressor.knee.setValueAtTime(12, this.ctx.currentTime);
+            this.compressor.ratio.setValueAtTime(4, this.ctx.currentTime);
+            this.compressor.attack.setValueAtTime(0.005, this.ctx.currentTime);
+            this.compressor.release.setValueAtTime(0.18, this.ctx.currentTime);
+
+            this.masterGain = this.ctx.createGain();
+            this.masterGain.gain.setValueAtTime(1.45, this.ctx.currentTime);
+            this.masterGain.connect(this.compressor);
+            this.compressor.connect(this.ctx.destination);
+
+            const bufferSize = Math.floor(this.ctx.sampleRate * 0.42);
+            this.noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+            const data = this.noiseBuffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+              data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (this.ctx.sampleRate * 0.14));
+            }
+          }
         }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume().catch(() => {});
+        }
+      }
+
+      toggleMute() {
+        this.init();
+        this.muted = !this.muted;
+        if (this.muted) {
+          this.stopBGM();
+        } else if (gameState.phase === 'countdown' || gameState.phase === 'fadein' || gameState.phase === 'battle') {
+          this.startBGM();
+        }
+        return this.muted;
+      }
+
+      // Sinister 30-second looping Horror Manor BGM (120 steps * 250ms = 30.0s exact loop)
+      startBGM() {
+        this.init();
+        if (this.muted || !this.ctx) return;
+        this.stopBGM();
+        this.bgmPlaying = true;
+        this.bgmStep = 0;
+
+        // Sinister C Harmonic Minor + Locrian Tritone (Gb = 369.99Hz, B = 493.88Hz, Ab = 415.30Hz)
+        const eerieNotes = [
+          // Section A (0s-7.5s): Creepy haunted music box with tritone intervals
+          523.25, 0, 622.25, 493.88, 523.25, 0, 369.99, 0,
+          415.30, 0, 392.00, 0, 369.99, 392.00, 311.13, 0,
+          523.25, 0, 622.25, 493.88, 739.99, 0, 698.46, 0,
+          622.25, 493.88, 523.25, 0, 415.30, 0, 369.99, 0,
+          // Section B (7.5s-15s): Descending chromatic dread & clockwork tension
+          698.46, 659.25, 622.25, 0, 554.37, 523.25, 493.88, 0,
+          466.16, 415.30, 392.00, 369.99, 392.00, 0, 261.63, 0,
+          783.99, 0, 739.99, 0, 622.25, 0, 554.37, 0,
+          523.25, 493.88, 415.30, 392.00, 369.99, 0, 0, 0,
+          // Section C (15s-22.5s): High phantom shrieks & dissonant bell tolls
+          1046.50, 0, 987.77, 0, 830.61, 0, 739.99, 0,
+          783.99, 0, 622.25, 0, 554.37, 0, 493.88, 0,
+          932.33, 0, 830.61, 0, 739.99, 0, 622.25, 0,
+          523.25, 493.88, 415.30, 0, 369.99, 0, 392.00, 0,
+          // Section D (22.5s-30s): Deep organ climax & sinister resolution
+          622.25, 554.37, 523.25, 493.88, 415.30, 392.00, 369.99, 0,
+          311.13, 369.99, 392.00, 415.30, 493.88, 0, 392.00, 0,
+          523.25, 0, 493.88, 0, 369.99, 0, 261.63, 0
+        ];
+
+        // Deep ominous sub-bass + pipe organ tritone roots
+        const bassProgression = [
+          65.41, 61.74, 55.00, 46.25, // C1 - B0 - A0 - F#0 (Tritone plunge!)
+          51.91, 49.00, 46.25, 49.00, // Ab0 - G0 - F#0 - G0
+          65.41, 69.30, 61.74, 51.91, // C1 - Db1 - B0 - Ab0
+          46.25, 49.00, 41.20, 49.00  // F#0 - G0 - E0 - G0
+        ];
+
+        const tick = () => {
+          if (!this.bgmPlaying || this.muted || !this.ctx || this.ctx.state !== 'running') return;
+          const now = this.ctx.currentTime;
+          const step = this.bgmStep % 120;
+
+          // 1. Loud Ominous Dark Pipe Organ & Sub-Bass Drone every 8 steps (2.0s)
+          if (step % 8 === 0) {
+            const rootFreq = bassProgression[Math.floor(step / 8) % bassProgression.length];
+            const oscSub = this.ctx.createOscillator();
+            const oscOrgan = this.ctx.createOscillator();
+            const oscTritone = this.ctx.createOscillator();
+            const filter = this.ctx.createBiquadFilter();
+            const gain = this.ctx.createGain();
+
+            oscSub.type = 'sawtooth';
+            oscOrgan.type = 'square';
+            oscTritone.type = 'sawtooth';
+
+            oscSub.frequency.setValueAtTime(rootFreq, now);
+            oscOrgan.frequency.setValueAtTime(rootFreq * 2, now);
+            // Sinister diminished 5th (tritone) overtone
+            oscTritone.frequency.setValueAtTime(rootFreq * 2.828, now);
+
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(340, now);
+
+            gain.gain.setValueAtTime(0.001, now);
+            gain.gain.linearRampToValueAtTime(0.24, now + 0.18);
+            gain.gain.exponentialRampToValueAtTime(0.015, now + 1.98);
+
+            oscSub.connect(filter);
+            oscOrgan.connect(filter);
+            oscTritone.connect(filter);
+            filter.connect(gain);
+            gain.connect(this.masterGain);
+
+            oscSub.start(now);
+            oscOrgan.start(now);
+            oscTritone.start(now);
+            oscSub.stop(now + 2.02);
+            oscOrgan.stop(now + 2.02);
+            oscTritone.stop(now + 2.02);
+          }
+
+          // 2. Heavy Double Heartbeat Thud (Steps 0 and 2 of every 8-step bar)
+          if (step % 8 === 0 || step % 8 === 2) {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(92, now);
+            osc.frequency.exponentialRampToValueAtTime(30, now + 0.21);
+            gain.gain.setValueAtTime(step % 8 === 0 ? 0.34 : 0.24, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.23);
+            osc.connect(gain);
+            gain.connect(this.masterGain);
+            osc.start(now);
+            osc.stop(now + 0.24);
+          }
+
+          // 3. Ghostly Theremin Wail on every 16th step
+          if (step % 16 === 6) {
+            const wail = this.ctx.createOscillator();
+            const wGain = this.ctx.createGain();
+            wail.type = 'sine';
+            wail.frequency.setValueAtTime(622.25, now);
+            wail.frequency.linearRampToValueAtTime(587.33, now + 0.6);
+            wail.frequency.linearRampToValueAtTime(659.25, now + 1.2);
+            wGain.gain.setValueAtTime(0.001, now);
+            wGain.gain.linearRampToValueAtTime(0.09, now + 0.4);
+            wGain.gain.exponentialRampToValueAtTime(0.001, now + 1.45);
+            wail.connect(wGain);
+            wGain.connect(this.masterGain);
+            wail.start(now);
+            wail.stop(now + 1.5);
+          }
+
+          // 4. Detuned Creepy Music Box Melody (Loud & Clear)
+          const note = eerieNotes[step];
+          if (note && note > 0) {
+            const osc1 = this.ctx.createOscillator();
+            const osc2 = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc1.type = 'triangle';
+            osc2.type = 'sine';
+            osc1.frequency.setValueAtTime(note, now);
+            // Creepy out-of-tune music box dissonance (1.5% sharp detune)
+            osc2.frequency.setValueAtTime(note * 1.012, now);
+
+            gain.gain.setValueAtTime(0.001, now);
+            gain.gain.linearRampToValueAtTime(0.18, now + 0.015);
+            gain.gain.exponentialRampToValueAtTime(0.002, now + 0.68);
+
+            osc1.connect(gain);
+            osc2.connect(gain);
+            gain.connect(this.masterGain);
+            osc1.start(now);
+            osc2.start(now);
+            osc1.stop(now + 0.7);
+            osc2.stop(now + 0.7);
+          }
+
+          this.bgmStep = (this.bgmStep + 1) % 120;
+        };
+
+        tick();
+        this.bgmTimer = setInterval(tick, 250);
+      }
+
+      stopBGM() {
+        this.bgmPlaying = false;
+        if (this.bgmTimer) {
+          clearInterval(this.bgmTimer);
+          this.bgmTimer = null;
+        }
+      }
+
+      playCuteBombExplosion(isPower = false) {
+        if (this.muted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(isPower ? 380 : 300, now);
+        osc.frequency.exponentialRampToValueAtTime(38, now + 0.38);
+        gain.gain.setValueAtTime(0.42, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + 0.42);
+
+        const pop = this.ctx.createOscillator();
+        const popGain = this.ctx.createGain();
+        pop.type = 'triangle';
+        pop.frequency.setValueAtTime(180, now + 0.02);
+        pop.frequency.exponentialRampToValueAtTime(560, now + 0.1);
+        pop.frequency.exponentialRampToValueAtTime(105, now + 0.25);
+        popGain.gain.setValueAtTime(0.28, now + 0.02);
+        popGain.gain.exponentialRampToValueAtTime(0.001, now + 0.27);
+        pop.connect(popGain);
+        popGain.connect(this.masterGain);
+        pop.start(now + 0.02);
+        pop.stop(now + 0.28);
+
+        if (this.noiseBuffer) {
+          const noise = this.ctx.createBufferSource();
+          noise.buffer = this.noiseBuffer;
+          const nGain = this.ctx.createGain();
+          nGain.gain.setValueAtTime(0.26, now);
+          nGain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+          noise.connect(nGain);
+          nGain.connect(this.masterGain);
+          noise.start(now);
+        }
+      }
+
+      playFurnitureSmash() {
+        if (this.muted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(290, now);
+        osc.frequency.exponentialRampToValueAtTime(58, now + 0.15);
+        gain.gain.setValueAtTime(0.16, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + 0.17);
+      }
+
+      playAscendHeaven() {
+        if (this.muted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const harpNotes = [523.25, 659.25, 783.99, 987.77, 1046.50, 1318.51, 1567.98, 2093.00];
+        harpNotes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          const startTime = now + idx * 0.07;
+          osc.frequency.setValueAtTime(freq, startTime);
+          gain.gain.setValueAtTime(0.001, startTime);
+          gain.gain.linearRampToValueAtTime(0.16, startTime + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0008, startTime + 1.05);
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(startTime);
+          osc.stop(startTime + 1.1);
+        });
+      }
+
+      playArmorDetach() {
+        if (this.muted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        [980, 520, 260].forEach((f, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(f, now + i * 0.04);
+          gain.gain.setValueAtTime(0.18, now + i * 0.04);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.04 + 0.13);
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(now + i * 0.04);
+          osc.stop(now + i * 0.04 + 0.14);
+        });
+      }
+
+      playPlaceBomb() {
+        if (this.muted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(220, now);
+        osc.frequency.exponentialRampToValueAtTime(400, now + 0.08);
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + 0.1);
+      }
+
+      playThrowBomb() {
+        if (this.muted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(240, now);
+        osc.frequency.exponentialRampToValueAtTime(780, now + 0.13);
+        osc.frequency.exponentialRampToValueAtTime(320, now + 0.25);
+        gain.gain.setValueAtTime(0.22, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.27);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + 0.28);
+      }
+
+      playAirdropLand() {
+        if (this.muted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        [523.25, 783.99, 1046.5].forEach((f, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(f, now + idx * 0.05);
+          gain.gain.setValueAtTime(0.12, now + idx * 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.05 + 0.18);
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(now + idx * 0.05);
+          osc.stop(now + idx * 0.05 + 0.2);
+        });
+      }
+
+      playPickup() {
+        if (this.muted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        [587.33, 880].forEach((f, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(f, now + i * 0.05);
+          gain.gain.setValueAtTime(0.15, now + i * 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.05 + 0.12);
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+          osc.start(now + i * 0.05);
+          osc.stop(now + i * 0.05 + 0.13);
+        });
+      }
+
+      playFlamethrower() {
+        if (this.muted || !this.ctx || !this.noiseBuffer) return;
+        const now = this.ctx.currentTime;
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = this.noiseBuffer;
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(520, now);
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.28, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.36);
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+        noise.start(now);
+      }
+
+      playCountdownTick(final = false) {
+        if (this.muted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(final ? 880 : 440, now);
+        gain.gain.setValueAtTime(0.14, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + (final ? 0.25 : 0.09));
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + (final ? 0.27 : 0.1));
+      }
     }
-    draw() {
-        ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
-        ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+
+    const sound = new SoundEngine();
+
+    // =========================================================================
+    // 2. FOUR CHARACTERS WITH 3-ELEMENT COLOR PLAN (色相 Hue, 明度 Value, 彩度 Chroma)
+    //    High-Value/High-Chroma Foreground vs Low-Value/Low-Chroma Environment
+    //    Includes distinct Coat, Inner Vest, Trousers (褲子), Shoes (鞋子), & Gloves!
+    // =========================================================================
+    const CHARACTERS = [
+      {
+        id: 0,
+        name: '渡鴉偵探',
+        title: '英倫獵鹿帽・格紋風衣',
+        // Hue: 215° Sapphire Blue + 45° Warm Gold Accent
+        primary: '#3b82f6',     // High-chroma outer coat
+        vestColor: '#1d4ed8',   // Mid-layer waistcoat
+        shirtColor: '#f8fafc',  // High-value inner shirt collar
+        pantsColor: '#1e293b',  // Tailored dark trousers (褲子)
+        shoeColor: '#451a03',   // Oxford leather shoes (鞋子)
+        capeColor: '#172554',
+        accent: '#fbbf24',      // Gold buckles/buttons
+        skin: '#fde6ce',
+        hatType: 'detective',
+        hairColor: '#0f172a',
+        eyeColor: '#38bdf8'
+      },
+      {
+        id: 1,
+        name: '緋紅護士',
+        title: '哥德雙馬尾・蕾絲禮服',
+        // Hue: 348° Crimson Rose + Pure Ivory Lace
+        primary: '#f43f5e',
+        vestColor: '#be123c',
+        shirtColor: '#fff1f2',
+        pantsColor: '#311026',  // Dark burgundy leggings/trousers
+        shoeColor: '#881337',   // Mary-Jane heeled boots
+        capeColor: '#4c0519',
+        accent: '#fda4af',
+        skin: '#ffe4e6',
+        hatType: 'nurse',
+        hairColor: '#3b071e',
+        eyeColor: '#fb7185'
+      },
+      {
+        id: 2,
+        name: '幽影小丑',
+        title: '雙角紫金帽・菱格禮裝',
+        // Hue: 275° Royal Amethyst + 50° Canary Gold Accent
+        primary: '#a855f7',
+        vestColor: '#6b21a8',
+        shirtColor: '#fef08a',
+        pantsColor: '#2e1065',  // Striped harlequin trousers
+        shoeColor: '#18181b',   // Pointed jester boots with gold cuffs
+        capeColor: '#3b0764',
+        accent: '#facc15',
+        skin: '#f5f3ff',
+        hatType: 'jester',
+        hairColor: '#1e1b4b',
+        eyeColor: '#c084fc'
+      },
+      {
+        id: 3,
+        name: '南瓜術士',
+        title: '煉金巫師帽・翡翠風衣',
+        // Hue: 160° Emerald Jade + 24° Pumpkin Orange Accent
+        primary: '#10b981',
+        vestColor: '#047857',
+        shirtColor: '#fef3c7',
+        pantsColor: '#1c1917',  // Dark alchemist cargo trousers
+        shoeColor: '#78350f',   // Buckled leather boots
+        capeColor: '#064e3b',
+        accent: '#f97316',
+        skin: '#fef3c7',
+        hatType: 'witch',
+        hairColor: '#5c2d16',
+        eyeColor: '#34d399'
+      }
+    ];
+
+    // =========================================================================
+    // 3. MAP & OFFSCREEN BAKING SYSTEM
+    //    Larger TILE_SIZE = 66 so every finger, shoe, trouser crease, and room
+    //    decoration is large, crisp, and unmistakable!
+    // =========================================================================
+    const GRID_COLS = 25;
+    const GRID_ROWS = 19;
+    const TILE_SIZE = 66;
+
+    const ZONES = [
+      { id: 'outdoor',  x1: 1,  y1: 1,  x2: 7,  y2: 6  },
+      { id: 'office',   x1: 9,  y1: 1,  x2: 15, y2: 6  },
+      { id: 'bathroom', x1: 17, y1: 1,  x2: 23, y2: 6  },
+      { id: 'corridor', x1: 1,  y1: 8,  x2: 15, y2: 10 },
+      { id: 'living',   x1: 17, y1: 8,  x2: 23, y2: 13 },
+      { id: 'bedroom',  x1: 1,  y1: 12, x2: 7,  y2: 17 },
+      { id: 'kitchen',  x1: 9,  y1: 12, x2: 15, y2: 17 },
+      { id: 'balcony',  x1: 17, y1: 15, x2: 23, y2: 17 }
+    ];
+
+    let mapGrid = [];       // 0 = floor, 1 = wall (indestructible), 2 = furniture (destructible), 3 = pillar (indestructible)
+    let furnitureMap = {};  // key "c,r" -> { type, hiddenItem }
+
+    const staticMapCanvas = document.createElement('canvas');
+    staticMapCanvas.width = GRID_COLS * TILE_SIZE;
+    staticMapCanvas.height = GRID_ROWS * TILE_SIZE;
+    const staticMapCtx = staticMapCanvas.getContext('2d');
+
+    const furnitureSprites = {};
+
+    function prebakeFurnitureSprites() {
+      const types = [
+        'fountain', 'bush', 'bench', 'desk', 'cabinet', 'copier',
+        'bathtub', 'toilet', 'washer', 'clock', 'statue',
+        'sofa', 'table', 'tv', 'bed', 'wardrobe', 'nightstand',
+        'fridge', 'stove', 'island', 'ac_unit', 'planter'
+      ];
+      types.forEach(type => {
+        const c = document.createElement('canvas');
+        c.width = TILE_SIZE;
+        c.height = TILE_SIZE;
+        const fctx = c.getContext('2d');
+        drawFurniturePieceToSprite(fctx, 0, 0, type);
+        furnitureSprites[type] = c;
+      });
     }
-}
-for(let i=0; i<600; i++) stars.push(new Star());
 
-function animate() {
-    ctx.fillStyle = isAbsorbing ? 'rgba(0, 0, 0, 0.9)' : 'rgba(0, 0, 0, 0.4)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    stars.forEach(s => { s.update(); s.draw(); });
-    requestAnimationFrame(animate);
-}
-animate();
+    function buildMap() {
+      mapGrid = Array.from({ length: GRID_ROWS }, () => Array(GRID_COLS).fill(0));
+      furnitureMap = {};
 
-/** 點擊火化與噴發 **/
-function ignite() {
-    const val = document.getElementById('dateInput').value;
-    if (val.length !== 8) return alert("請輸入 8 碼西元日期");
-    const res = calculateSingularity(val);
-    if (!res) return alert("日期超出瑪雅曆範圍");
+      for (let r = 0; r < GRID_ROWS; r++) {
+        for (let c = 0; c < GRID_COLS; c++) {
+          if (r === 0 || r === GRID_ROWS - 1 || c === 0 || c === GRID_COLS - 1) {
+            mapGrid[r][c] = 1;
+          }
+        }
+      }
 
-    isAbsorbing = true;
-    document.getElementById('mainCard').classList.add('swallowed');
-    const flash = document.getElementById('flash');
+      for (let r = 1; r < GRID_ROWS - 1; r++) {
+        mapGrid[r][8] = 1;
+        mapGrid[r][16] = 1;
+      }
+      [3, 4, 8, 9, 10, 14, 15].forEach(r => { mapGrid[r][8] = 0; });
+      [3, 4, 8, 9, 10, 11, 12, 16].forEach(r => { mapGrid[r][16] = 0; });
 
-    setTimeout(() => {
-        flash.style.opacity = '1';
+      for (let c = 1; c < GRID_COLS - 1; c++) {
+        mapGrid[7][c] = 1;
+      }
+      [3, 4, 5, 11, 12, 13, 19, 20, 21].forEach(c => { mapGrid[7][c] = 0; });
+
+      for (let c = 1; c <= 15; c++) {
+        mapGrid[11][c] = 1;
+      }
+      [3, 4, 5, 11, 12, 13].forEach(c => { mapGrid[11][c] = 0; });
+
+      for (let c = 17; c <= 23; c++) {
+        mapGrid[14][c] = 1;
+      }
+      [19, 20, 21].forEach(c => { mapGrid[14][c] = 0; });
+
+      // Indestructible Pillars (柱子: mapGrid = 3)
+      const placePillar = (c, r) => { mapGrid[r][c] = 3; };
+      placePillar(4, 9);
+      placePillar(10, 9);
+      placePillar(19, 10);
+      placePillar(4, 3);
+      placePillar(12, 3);
+      placePillar(20, 3);
+      placePillar(4, 14);
+      placePillar(12, 14);
+
+      // Richly populated destructible furniture across all 8 spaces (leaves clear walking lanes!)
+      const rawFurnitureList = [
+        // 戶外 (Outdoor Courtyard)
+        { c: 2, r: 2, type: 'bush' },
+        { c: 3, r: 2, type: 'bush' },
+        { c: 6, r: 2, type: 'fountain' },
+        { c: 2, r: 5, type: 'bench' },
+        { c: 5, r: 4, type: 'bench' },
+        { c: 6, r: 5, type: 'bush' },
+        { c: 1, r: 6, type: 'bush' },
+
+        // 辦公室 (Office)
+        { c: 9,  r: 2, type: 'cabinet' },
+        { c: 10, r: 2, type: 'desk' },
+        { c: 14, r: 2, type: 'copier' },
+        { c: 15, r: 2, type: 'cabinet' },
+        { c: 10, r: 4, type: 'desk' },
+        { c: 14, r: 4, type: 'desk' },
+        { c: 12, r: 5, type: 'cabinet' },
+
+        // 廁所 (Bathroom)
+        { c: 18, r: 2, type: 'bathtub' },
+        { c: 19, r: 2, type: 'bathtub' },
+        { c: 22, r: 2, type: 'toilet' },
+        { c: 18, r: 5, type: 'washer' },
+        { c: 21, r: 4, type: 'washer' },
+        { c: 22, r: 5, type: 'toilet' },
+
+        // 走廊 (Corridor)
+        { c: 2,  r: 9, type: 'clock' },
+        { c: 6,  r: 8, type: 'bench' },
+        { c: 7,  r: 9, type: 'statue' },
+        { c: 13, r: 9, type: 'clock' },
+        { c: 14, r: 8, type: 'statue' },
+
+        // 客廳 (Living Room)
+        { c: 18, r: 9,  type: 'sofa' },
+        { c: 21, r: 9,  type: 'table' },
+        { c: 22, r: 9,  type: 'sofa' },
+        { c: 22, r: 10, type: 'tv' },
+        { c: 18, r: 12, type: 'sofa' },
+        { c: 21, r: 12, type: 'table' },
+        { c: 22, r: 12, type: 'sofa' },
+
+        // 房間 (Bedroom)
+        { c: 2, r: 13, type: 'bed' },
+        { c: 3, r: 13, type: 'nightstand' },
+        { c: 6, r: 13, type: 'wardrobe' },
+        { c: 2, r: 15, type: 'nightstand' },
+        { c: 6, r: 15, type: 'wardrobe' },
+        { c: 5, r: 16, type: 'bed' },
+        { c: 1, r: 17, type: 'wardrobe' },
+
+        // 廚房 (Kitchen)
+        { c: 10, r: 13, type: 'fridge' },
+        { c: 14, r: 13, type: 'stove' },
+        { c: 15, r: 13, type: 'stove' },
+        { c: 10, r: 15, type: 'stove' },
+        { c: 14, r: 15, type: 'fridge' },
+        { c: 11, r: 16, type: 'island' },
+        { c: 12, r: 16, type: 'island' },
+
+        // 陽台 (Balcony)
+        { c: 18, r: 16, type: 'ac_unit' },
+        { c: 20, r: 16, type: 'planter' },
+        { c: 21, r: 15, type: 'bench' },
+        { c: 22, r: 16, type: 'planter' }
+      ];
+
+      const hiddenPool = [
+        'flame', 'throwglove', 'powerbomb', 'armor',
+        'flame', 'throwglove', 'powerbomb', 'armor',
+        'flame', 'throwglove', 'powerbomb', 'armor',
+        'flame', 'throwglove', 'powerbomb', 'armor',
+        'flame', 'throwglove', 'powerbomb', 'armor',
+        'flame', 'throwglove', 'powerbomb', 'armor',
+        'flame', 'throwglove', 'powerbomb', 'armor',
+        'flame', 'throwglove', 'powerbomb', 'armor',
+        'throwglove', 'flame', 'powerbomb', 'throwglove'
+      ].sort(() => Math.random() - 0.5);
+
+      rawFurnitureList.forEach((f, idx) => {
+        mapGrid[f.r][f.c] = 2;
+        furnitureMap[`${f.c},${f.r}`] = {
+          type: f.type,
+          hiddenItem: idx < hiddenPool.length ? hiddenPool[idx] : null
+        };
+      });
+
+      bakeStaticMapLayer();
+    }
+
+    // =========================================================================
+    // 3-ELEMENT COLOR PLAN ARCHITECTURAL FLOOR & INTERIOR DECORATION BAKER
+    // - Background Floors: Low Value (L: 12%~20%), Controlled Chroma (S: 15%~30%)
+    // - Architectural Carpets, Countertops, Wall Fixtures: Rich spatial depth!
+    // =========================================================================
+    function bakeStaticMapLayer() {
+      const ctx = staticMapCtx;
+      const s = TILE_SIZE;
+      ctx.clearRect(0, 0, staticMapCanvas.width, staticMapCanvas.height);
+
+      // -----------------------------------------------------------------------
+      // ROOM 1: 戶外 (Outdoor Courtyard: cols 1..7, rows 1..6)
+      // Hue: 145° Deep Forest Night Lawn + Slate Flagstone Plaza + Rose Pergola Border
+      // -----------------------------------------------------------------------
+      for (let r = 1; r <= 6; r++) {
+        for (let c = 1; c <= 7; c++) {
+          const tx = c * s;
+          const ty = r * s;
+          ctx.fillStyle = (r + c) % 2 === 0 ? '#0d1f16' : '#11261b';
+          ctx.fillRect(tx, ty, s, s);
+          // Detailed grass tufts & pebble stones
+          ctx.strokeStyle = '#1b3d2b';
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.moveTo(tx + 14, ty + 22); ctx.lineTo(tx + 11, ty + 14);
+          ctx.moveTo(tx + 17, ty + 22); ctx.lineTo(tx + 20, ty + 15);
+          ctx.moveTo(tx + 44, ty + 48); ctx.lineTo(tx + 41, ty + 40);
+          ctx.stroke();
+        }
+      }
+      // Central Stone Courtyard Medallion & Stepping Stones
+      ctx.fillStyle = 'rgba(30, 41, 59, 0.72)';
+      ctx.beginPath();
+      ctx.arc(4.5 * s, 3.8 * s, 1.9 * s, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      [[3, 6], [4, 6], [4, 5], [4, 4], [5, 3], [6, 3], [7, 3], [7, 4]].forEach(([c, r]) => {
+        const tx = c * s;
+        const ty = r * s;
+        ctx.fillStyle = '#273549';
+        ctx.beginPath();
+        ctx.roundRect(tx + 6, ty + 6, s - 12, s - 12, 10);
+        ctx.fill();
+        ctx.strokeStyle = '#475569';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      });
+      // North wall flowerbed trough & glowing garden bollards
+      for (let c = 1; c <= 7; c++) {
+        const fx = c * s;
+        const fy = 1 * s;
+        ctx.fillStyle = '#063726';
+        ctx.fillRect(fx + 3, fy + 2, s - 6, 16);
+        ctx.strokeStyle = '#78350f';
+        ctx.strokeRect(fx + 3, fy + 2, s - 6, 16);
+        ctx.fillStyle = c % 2 === 0 ? '#f43f5e' : '#38bdf8';
+        ctx.beginPath();
+        ctx.arc(fx + 18, fy + 10, 4, 0, Math.PI * 2);
+        ctx.arc(fx + 44, fy + 9, 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // -----------------------------------------------------------------------
+      // ROOM 2: 辦公室 (Executive Study & Office: cols 9..15, rows 1..6)
+      // Hue: 215° Midnight Navy Parquet + Gold-Trimmed Study Carpet + Full Book Wall
+      // -----------------------------------------------------------------------
+      for (let r = 1; r <= 6; r++) {
+        for (let c = 9; c <= 15; c++) {
+          const tx = c * s;
+          const ty = r * s;
+          ctx.fillStyle = (r + c) % 2 === 0 ? '#141c2b' : '#182234';
+          ctx.fillRect(tx, ty, s, s);
+          ctx.strokeStyle = 'rgba(148, 163, 184, 0.07)';
+          ctx.strokeRect(tx, ty, s, s / 2);
+        }
+      }
+      // Executive study carpet with intricate corner filigree
+      ctx.fillStyle = '#172554';
+      ctx.beginPath();
+      ctx.roundRect(10.0 * s, 2.0 * s, 5.0 * s, 3.8 * s, 8);
+      ctx.fill();
+      ctx.strokeStyle = '#d97706';
+      ctx.lineWidth = 2.5;
+      ctx.strokeRect(10.15 * s, 2.15 * s, 4.7 * s, 3.5 * s);
+      ctx.strokeStyle = 'rgba(251, 191, 36, 0.35)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(10.3 * s, 2.3 * s, 4.4 * s, 3.2 * s);
+      // Built-in Mahogany Library Wall along North Wall
+      for (let c = 9; c <= 15; c++) {
+        const bx = c * s;
+        const by = 1 * s;
+        ctx.fillStyle = '#3b1506';
+        ctx.fillRect(bx + 2, by + 1, s - 4, 16);
+        const bookColors = ['#ef4444', '#3b82f6', '#10b981', '#eab308', '#a855f7', '#f97316'];
+        for (let b = 0; b < 7; b++) {
+          ctx.fillStyle = bookColors[(c + b) % bookColors.length];
+          ctx.fillRect(bx + 6 + b * 7.5, by + 3, 5.5, 11);
+        }
+      }
+
+      // -----------------------------------------------------------------------
+      // ROOM 3: 廁所 (Luxury Spa Bathroom: cols 17..23, rows 1..6)
+      // Hue: 195° Deep Slate-Aqua Mosaic + Backlit Vanity Mirrors + Wooden Duckboard
+      // -----------------------------------------------------------------------
+      for (let r = 1; r <= 6; r++) {
+        for (let c = 17; c <= 23; c++) {
+          const tx = c * s;
+          const ty = r * s;
+          ctx.fillStyle = (r + c) % 2 === 0 ? '#0e242e' : '#122c38';
+          ctx.fillRect(tx, ty, s, s);
+          ctx.strokeStyle = 'rgba(125, 211, 252, 0.09)';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(tx, ty, s / 2, s / 2);
+          ctx.strokeRect(tx + s / 2, ty + s / 2, s / 2, s / 2);
+        }
+      }
+      // Teakwood spa bath mat & pebble drain border
+      ctx.fillStyle = '#0369a1';
+      ctx.beginPath();
+      ctx.roundRect(18.5 * s, 3.8 * s, 3.0 * s, 1.8 * s, 10);
+      ctx.fill();
+      ctx.strokeStyle = '#7dd3fc';
+      ctx.lineWidth = 1.8;
+      ctx.stroke();
+      // Chrome floor drains
+      [19.5, 21.5].forEach(dc => {
+        ctx.fillStyle = '#64748b';
+        ctx.beginPath();
+        ctx.arc(dc * s, 2.6 * s, 8, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      // Illuminated Vanity Mirrors & Marble Countertop along North Wall
+      for (let c = 17; c <= 23; c++) {
+        const mx = c * s;
+        const my = 1 * s;
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillRect(mx + 4, my + 2, s - 8, 14);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(mx + 10, my + 4, s - 20, 8);
+      }
+
+      // -----------------------------------------------------------------------
+      // ROOM 4: 走廊 (Grand Manor Hallway: cols 1..15, rows 8..10)
+      // Hue: 335° Shadowed Rosewood + Royal Burgundy & Gold Woven Runner Carpet
+      // -----------------------------------------------------------------------
+      for (let r = 8; r <= 10; r++) {
+        for (let c = 1; c <= 15; c++) {
+          const tx = c * s;
+          const ty = r * s;
+          ctx.fillStyle = (r + c) % 2 === 0 ? '#1b1017' : '#22141d';
+          ctx.fillRect(tx, ty, s, s);
+        }
+      }
+      ctx.fillStyle = '#701a3c';
+      ctx.fillRect(1.2 * s, 8.55 * s, 13.6 * s, 1.9 * s);
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 2.5;
+      ctx.strokeRect(1.3 * s, 8.68 * s, 13.4 * s, 1.64 * s);
+      for (let c = 2; c <= 14; c += 2) {
+        const cx = (c + 0.5) * s;
+        const cy = 9.5 * s;
+        ctx.fillStyle = 'rgba(251, 191, 36, 0.32)';
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - 12);
+        ctx.lineTo(cx + 15, cy);
+        ctx.lineTo(cx, cy + 12);
+        ctx.lineTo(cx - 15, cy);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // -----------------------------------------------------------------------
+      // ROOM 5: 客廳 (Grand Living Room: cols 17..23, rows 8..13)
+      // Hue: 22° Warm Walnut Planks + Rich Persian Parlor Rug + Stone Hearth Fireplace + Framed Wall Art
+      // -----------------------------------------------------------------------
+      for (let r = 8; r <= 13; r++) {
+        for (let c = 17; c <= 23; c++) {
+          const tx = c * s;
+          const ty = r * s;
+          ctx.fillStyle = (r + c) % 2 === 0 ? '#241611' : '#2c1b15';
+          ctx.fillRect(tx, ty, s, s);
+          ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(tx, ty, s, s / 3);
+        }
+      }
+      // Ornate Persian Parlor Rug filling the Living Room seating area
+      const rugX = 17.8 * s;
+      const rugY = 8.85 * s;
+      const rugW = 5.4 * s;
+      const rugH = 4.3 * s;
+      ctx.fillStyle = '#6b141a';
+      ctx.beginPath();
+      ctx.roundRect(rugX, rugY, rugW, rugH, 12);
+      ctx.fill();
+      ctx.strokeStyle = '#d97706';
+      ctx.lineWidth = 3.2;
+      ctx.strokeRect(rugX + 8, rugY + 8, rugW - 16, rugH - 16);
+      ctx.strokeStyle = '#fde68a';
+      ctx.lineWidth = 1.4;
+      ctx.strokeRect(rugX + 18, rugY + 18, rugW - 36, rugH - 36);
+      // Central Persian Medallion & Corner Motifs
+      ctx.fillStyle = 'rgba(245, 158, 11, 0.28)';
+      ctx.beginPath();
+      ctx.ellipse(rugX + rugW / 2, rugY + rugH / 2, 54, 36, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // Rug golden fringe tassels
+      ctx.strokeStyle = '#fde68a';
+      ctx.lineWidth = 1.6;
+      for (let ty = rugY + 8; ty < rugY + rugH - 8; ty += 8) {
+        ctx.beginPath();
+        ctx.moveTo(rugX - 6, ty); ctx.lineTo(rugX, ty);
+        ctx.moveTo(rugX + rugW, ty); ctx.lineTo(rugX + rugW + 6, ty);
+        ctx.stroke();
+      }
+      // Grand Brick & Stone Fireplace Hearth on North Living Room Wall
+      const fpX = 21.2 * s;
+      const fpY = 8 * s;
+      ctx.fillStyle = '#451a03';
+      ctx.fillRect(fpX, fpY, s * 1.6, 20);
+      ctx.strokeStyle = '#b45309';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(fpX, fpY, s * 1.6, 20);
+      ctx.fillStyle = '#f97316';
+      ctx.beginPath();
+      ctx.arc(fpX + s * 0.8, fpY + 12, 13, 0, Math.PI);
+      ctx.fill();
+      ctx.fillStyle = '#fef08a';
+      ctx.beginPath();
+      ctx.arc(fpX + s * 0.8, fpY + 10, 7, 0, Math.PI);
+      ctx.fill();
+      // Indoor Monstera & Brass Floor Lamp in Living Room corners
+      const plX = 17.45 * s;
+      const plY = 8.45 * s;
+      ctx.fillStyle = '#7c2d12';
+      ctx.beginPath();
+      ctx.arc(plX, plY, 13, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#15803d';
+      for (let a = 0; a < 6; a++) {
+        const ang = (a * Math.PI * 2) / 6 + 0.2;
+        ctx.beginPath();
+        ctx.ellipse(plX + Math.cos(ang) * 10, plY + Math.sin(ang) * 10, 8, 4.5, ang, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // -----------------------------------------------------------------------
+      // ROOM 6: 房間 (Master Bedroom: cols 1..7, rows 12..17)
+      // Hue: 265° Deep Velvet Plum Wood + Quilted Circular Rug + Vanity Wall Mirror
+      // -----------------------------------------------------------------------
+      for (let r = 12; r <= 17; r++) {
+        for (let c = 1; c <= 7; c++) {
+          const tx = c * s;
+          const ty = r * s;
+          ctx.fillStyle = (r + c) % 2 === 0 ? '#1c1429' : '#231934';
+          ctx.fillRect(tx, ty, s, s);
+        }
+      }
+      ctx.fillStyle = '#4c1d95';
+      ctx.beginPath();
+      ctx.ellipse(4.4 * s, 15.2 * s, 2.2 * s, 1.6 * s, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#c084fc';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      ctx.strokeStyle = 'rgba(233, 213, 255, 0.35)';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.ellipse(4.4 * s, 15.2 * s, 1.8 * s, 1.25 * s, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // -----------------------------------------------------------------------
+      // ROOM 7: 廚房 (Gourmet Kitchen: cols 9..15, rows 12..17)
+      // Hue: 35° Warm Charcoal & Slate Culinary Checkerboard + Built-in Sink Countertop
+      // -----------------------------------------------------------------------
+      for (let r = 12; r <= 17; r++) {
+        for (let c = 9; c <= 15; c++) {
+          const tx = c * s;
+          const ty = r * s;
+          for (let sr = 0; sr < 2; sr++) {
+            for (let sc = 0; sc < 2; sc++) {
+              ctx.fillStyle = (sr + sc) % 2 === 0 ? '#1c1917' : '#2e2925';
+              ctx.fillRect(tx + sc * (s / 2), ty + sr * (s / 2), s / 2, s / 2);
+            }
+          }
+        }
+      }
+      // Woven Terracotta Kitchen Runner Mat
+      ctx.fillStyle = '#7c2d12';
+      ctx.beginPath();
+      ctx.roundRect(10.8 * s, 13.1 * s, 3.4 * s, 1.1 * s, 8);
+      ctx.fill();
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // -----------------------------------------------------------------------
+      // ROOM 8: 陽台 (Open-Air Terrace Balcony: cols 17..23, rows 15..17)
+      // Hue: 190° Teakwood Deck Slats + Starlight Balustrade Railing
+      // -----------------------------------------------------------------------
+      for (let r = 15; r <= 17; r++) {
+        for (let c = 17; c <= 23; c++) {
+          const tx = c * s;
+          const ty = r * s;
+          ctx.fillStyle = '#152225';
+          ctx.fillRect(tx, ty, s, s);
+          ctx.strokeStyle = '#0b1315';
+          ctx.lineWidth = 1.6;
+          for (let slat = 8; slat < s; slat += 13) {
+            ctx.beginPath();
+            ctx.moveTo(tx, ty + slat);
+            ctx.lineTo(tx + s, ty + slat);
+            ctx.stroke();
+          }
+        }
+      }
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 2.2;
+      for (let x = 17.2 * s; x <= 23.8 * s; x += 14) {
+        ctx.beginPath();
+        ctx.moveTo(x, 17.82 * s);
+        ctx.lineTo(x, 18.0 * s);
+        ctx.stroke();
+      }
+
+      // Doorway Thresholds with Brass Strips
+      for (let r = 1; r < GRID_ROWS - 1; r++) {
+        for (let c = 1; c < GRID_COLS - 1; c++) {
+          if (mapGrid[r][c] === 0 && (c === 8 || c === 16 || r === 7 || r === 11 || r === 14)) {
+            ctx.fillStyle = '#291522';
+            ctx.fillRect(c * s, r * s, s, s);
+            ctx.strokeStyle = 'rgba(251, 191, 36, 0.28)';
+            ctx.lineWidth = 1.8;
+            ctx.strokeRect(c * s + 2, r * s + 2, s - 4, s - 4);
+          }
+        }
+      }
+
+      // Bake Indestructible 2.5D Walls (1) with Wainscoting & Cast Shadows, and Pillars (3)
+      for (let r = 0; r < GRID_ROWS; r++) {
+        for (let c = 0; c < GRID_COLS; c++) {
+          const cell = mapGrid[r][c];
+          const wx = c * s;
+          const wy = r * s;
+          if (cell === 1) {
+            // Drop shadow below south-facing walls
+            if (r + 1 < GRID_ROWS && mapGrid[r + 1][c] === 0) {
+              ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+              ctx.fillRect(wx, wy + s, s, 12);
+            }
+            ctx.fillStyle = '#090d16';
+            ctx.fillRect(wx, wy, s, s);
+            // Wainscoting front face (bottom 15px)
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(wx, wy + s - 15, s, 15);
+            ctx.strokeStyle = '#475569';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(wx + 4, wy + s - 12, s - 8, 9);
+            // Top stone cornice cap
+            const wallGrad = ctx.createLinearGradient(wx, wy, wx, wy + s - 15);
+            wallGrad.addColorStop(0, '#334155');
+            wallGrad.addColorStop(1, '#1e293b');
+            ctx.fillStyle = wallGrad;
+            ctx.fillRect(wx + 2, wy + 2, s - 4, s - 17);
+            ctx.strokeStyle = '#64748b';
+            ctx.lineWidth = 1.2;
+            ctx.strokeRect(wx + 2, wy + 2, s - 4, s - 17);
+          } else if (cell === 3) {
+            drawIndestructiblePillar(ctx, c, r);
+          }
+        }
+      }
+
+      // Warm Sconce Light Pools
+      const torchSpots = [
+        { x: 4.5 * s,  y: 1.2 * s },
+        { x: 12.5 * s, y: 1.2 * s },
+        { x: 20.5 * s, y: 1.2 * s },
+        { x: 8.5 * s,  y: 8.2 * s },
+        { x: 20.5 * s, y: 8.2 * s },
+        { x: 4.5 * s,  y: 12.2 * s },
+        { x: 12.5 * s, y: 12.2 * s },
+        { x: 20.5 * s, y: 15.2 * s }
+      ];
+      torchSpots.forEach(wt => {
+        const r = s * 2.2;
+        const tGrad = ctx.createRadialGradient(wt.x, wt.y, 4, wt.x, wt.y, r);
+        tGrad.addColorStop(0, 'rgba(254, 240, 138, 0.22)');
+        tGrad.addColorStop(0.5, 'rgba(251, 146, 60, 0.08)');
+        tGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = tGrad;
+        ctx.beginPath();
+        ctx.arc(wt.x, wt.y, r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    function stampScorchMarkOnStaticMap(x, y, r) {
+      const ctx = staticMapCtx;
+      ctx.save();
+      const grad = ctx.createRadialGradient(x, y, 2, x, y, r);
+      grad.addColorStop(0, 'rgba(8, 8, 12, 0.72)');
+      grad.addColorStop(0.6, 'rgba(28, 18, 22, 0.40)');
+      grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // 4. WEAPON DEFINITIONS
+    // =========================================================================
+    const WEAPON_DEFS = {
+      flame:      { id: 'flame',      name: '火槍',     charges: 3, color: '#f97316' },
+      throwglove: { id: 'throwglove', name: '投彈手套', charges: 3, color: '#38bdf8' },
+      powerbomb:  { id: 'powerbomb',  name: '強化炸彈', charges: 3, color: '#d946ef' },
+      armor:      { id: 'armor',      name: '防護衣',   charges: 1, color: '#10b981' }
+    };
+
+    // =========================================================================
+    // 5. GAME STATE & ENTITIES
+    // =========================================================================
+    const gameState = {
+      phase: 'select',
+      selectedCharId: 0,
+      countdownTimer: 10.0,
+      fadeTimer: 0,
+      cameraMode: 'follow',
+      players: [],
+      bombs: [],
+      thrownBombs: [],
+      explosions: [],
+      flameStreams: [],
+      items: [],
+      skyDrops: [],
+      detachedArmors: [],
+      ascensions: [],
+      particles: [],
+      dustMotes: [],
+      lastTime: 0,
+      airdropTimer: 0
+    };
+
+    const SPAWN_SLOTS = [
+      { col: 2,  row: 3,  zone: 'outdoor' },
+      { col: 22, row: 3,  zone: 'bathroom' },
+      { col: 2,  row: 16, zone: 'bedroom' },
+      { col: 22, row: 13, zone: 'living' },
+      { col: 12, row: 2,  zone: 'office' },
+      { col: 12, row: 13, zone: 'kitchen' }
+    ];
+
+    function createPlayer(charDef, isAI, spawnCol, spawnRow, aiIndex = 0) {
+      return {
+        id: charDef.id,
+        charDef,
+        isAI,
+        aiIndex,
+        x: (spawnCol + 0.5) * TILE_SIZE,
+        y: (spawnRow + 0.5) * TILE_SIZE,
+        col: spawnCol,
+        row: spawnRow,
+        dir: { x: 0, y: 1 },
+        speed: isAI ? 184 : 198,
+        alive: true,
+        opacity: isAI ? 0 : 1,
+        armor: 1,
+        invulnTimer: 0,
+        weapon: null,
+        weaponCharges: 0,
+        heldBomb: null,
+        bombCooldown: 0,
+        weaponCooldown: 0,
+        walkCycle: 0,
+        isMoving: false,
+        actionPoseTimer: 0, // triggers visible arm throw / flame / place animation!
+        actionPoseType: null,
+        blinkTimer: Math.random() * 3,
+        aiTargetCell: null,
+        aiRethinkTimer: isAI ? (aiIndex * 0.06) : 0
+      };
+    }
+
+    function triggerSkyDrop() {
+      const types = ['flame', 'throwglove', 'powerbomb', 'armor'];
+      const type = types[Math.floor(Math.random() * types.length)];
+      for (let attempt = 0; attempt < 40; attempt++) {
+        const c = 1 + Math.floor(Math.random() * (GRID_COLS - 2));
+        const r = 1 + Math.floor(Math.random() * (GRID_ROWS - 2));
+        if (mapGrid[r][c] === 0 &&
+            !gameState.items.some(i => i.col === c && i.row === r) &&
+            !gameState.skyDrops.some(sd => sd.col === c && sd.row === r)) {
+          gameState.skyDrops.push({
+            col: c,
+            row: r,
+            x: (c + 0.5) * TILE_SIZE,
+            y: (r + 0.5) * TILE_SIZE,
+            z: 320,
+            fallSpeed: 225,
+            type,
+            swayPhase: Math.random() * Math.PI * 2
+          });
+          break;
+        }
+      }
+    }
+
+    // =========================================================================
+    // 6. INITIALIZE MATCH
+    // =========================================================================
+    function startMatch() {
+      sound.init();
+      buildMap();
+
+      const slots = [...SPAWN_SLOTS].sort(() => Math.random() - 0.5);
+      gameState.players = [];
+
+      const userChar = CHARACTERS.find(c => c.id === gameState.selectedCharId) || CHARACTERS[0];
+      gameState.players.push(createPlayer(userChar, false, slots[0].col, slots[0].row, 0));
+
+      let slotIdx = 1;
+      let aiIdx = 0;
+      CHARACTERS.forEach(c => {
+        if (c.id !== userChar.id) {
+          const s = slots[slotIdx++];
+          gameState.players.push(createPlayer(c, true, s.col, s.row, aiIdx++));
+        }
+      });
+
+      gameState.bombs = [];
+      gameState.thrownBombs = [];
+      gameState.explosions = [];
+      gameState.flameStreams = [];
+      gameState.items = [];
+      gameState.skyDrops = [];
+      gameState.detachedArmors = [];
+      gameState.ascensions = [];
+      gameState.particles = [];
+      gameState.airdropTimer = 0;
+
+      gameState.dustMotes = Array.from({ length: 26 }, () => ({
+        x: Math.random() * GRID_COLS * TILE_SIZE,
+        y: Math.random() * GRID_ROWS * TILE_SIZE,
+        r: 1.5 + Math.random() * 1.8,
+        vx: (Math.random() - 0.5) * 14,
+        vy: -7 - Math.random() * 10,
+        alpha: 0.18 + Math.random() * 0.3
+      }));
+
+      gameState.phase = 'countdown';
+      gameState.countdownTimer = 10.0;
+      gameState.fadeTimer = 0;
+
+      document.getElementById('selectScreen').classList.add('hidden');
+      document.getElementById('resultScreen').classList.add('hidden');
+      document.getElementById('resultScreen').classList.remove('flex');
+      document.getElementById('topHud').classList.remove('hidden');
+      document.getElementById('bottomControls').classList.remove('hidden');
+      document.getElementById('countdownBadge').classList.remove('hidden');
+      document.getElementById('countdownNum').textContent = '10';
+
+      updateTopStatusStrip();
+      updateWeaponButtonUI();
+      sound.startBGM();
+    }
+
+    // =========================================================================
+    // 7. FURNITURE DESTRUCTION & LOOT DROP LOGIC
+    // =========================================================================
+    function destroyFurnitureAt(col, row) {
+      if (mapGrid[row][col] !== 2) return;
+      const key = `${col},${row}`;
+      const fData = furnitureMap[key];
+      mapGrid[row][col] = 0;
+      delete furnitureMap[key];
+
+      const cx = (col + 0.5) * TILE_SIZE;
+      const cy = (row + 0.5) * TILE_SIZE;
+
+      stampScorchMarkOnStaticMap(cx, cy, TILE_SIZE * 0.44);
+
+      const debrisColors = ['#92400e', '#b45309', '#cbd5e1', '#fbbf24', '#78350f'];
+      for (let i = 0; i < 12; i++) {
+        const ang = (Math.PI * 2 * i) / 12 + (Math.random() - 0.5) * 0.3;
+        const spd = 70 + Math.random() * 130;
+        gameState.particles.push({
+          x: cx,
+          y: cy,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd - 20,
+          r: 4 + Math.random() * 4,
+          color: debrisColors[i % debrisColors.length],
+          life: 0.44,
+          maxLife: 0.44,
+          isDebris: true,
+          rot: Math.random() * Math.PI * 2,
+          vRot: (Math.random() - 0.5) * 12
+        });
+      }
+
+      sound.playFurnitureSmash();
+
+      if (fData && fData.hiddenItem) {
+        if (!gameState.items.some(it => it.col === col && it.row === row)) {
+          gameState.items.push({
+            col,
+            row,
+            type: fData.hiddenItem,
+            bobPhase: Math.random() * Math.PI * 2,
+            spawnScale: 0.15
+          });
+        }
+      }
+    }
+
+    // =========================================================================
+    // 8. COMBAT MECHANICS & ACTION POSES
+    // =========================================================================
+    function computeThrowLandingTile(startCol, startRow, dirX, dirY, preferredDist = 4) {
+      for (let d = preferredDist; d >= 1; d--) {
+        const tc = Math.max(1, Math.min(GRID_COLS - 2, startCol + dirX * d));
+        const tr = Math.max(1, Math.min(GRID_ROWS - 2, startRow + dirY * d));
+        if (mapGrid[tr][tc] === 0 && !gameState.bombs.some(b => b.col === tc && b.row === tr)) {
+          return { col: tc, row: tr };
+        }
+      }
+      return { col: startCol, row: startRow };
+    }
+
+    function launchThrownBomb(player, bombData, targetCol, targetRow) {
+      sound.playThrowBomb();
+      player.actionPoseTimer = 0.35;
+      player.actionPoseType = 'throw';
+      gameState.thrownBombs.push({
+        startX: player.x,
+        startY: player.y,
+        x: player.x,
+        y: player.y,
+        z: 30,
+        targetCol,
+        targetRow,
+        targetX: (targetCol + 0.5) * TILE_SIZE,
+        targetY: (targetRow + 0.5) * TILE_SIZE,
+        progress: 0,
+        flightDuration: 0.38,
+        ownerId: bombData.ownerId,
+        ownerIsAI: bombData.ownerIsAI,
+        radius: bombData.radius,
+        isPower: bombData.isPower,
+        remainingFuse: Math.max(1.05, bombData.timer)
+      });
+    }
+
+    function placeBomb(player) {
+      if (!player.alive) return;
+      if (gameState.phase !== 'battle' && player.isAI) return;
+
+      if (player.heldBomb) {
+        const dx = Math.round(player.dir.x);
+        const dy = Math.round(player.dir.y);
+        const dirX = (dx === 0 && dy === 0) ? 0 : dx;
+        const dirY = (dx === 0 && dy === 0) ? 1 : dy;
+        const land = computeThrowLandingTile(player.col, player.row, dirX, dirY, 4);
+        launchThrownBomb(player, player.heldBomb, land.col, land.row);
+        player.heldBomb = null;
+        player.bombCooldown = 0.15;
+        return;
+      }
+
+      const existingBombAtFeet = gameState.bombs.find(b => b.col === player.col && b.row === player.row);
+      if (existingBombAtFeet && player.weapon === 'throwglove' && player.weaponCharges > 0) {
+        gameState.bombs = gameState.bombs.filter(b => b !== existingBombAtFeet);
+        player.heldBomb = existingBombAtFeet;
+        player.weaponCharges--;
+        if (player.weaponCharges <= 0) player.weapon = null;
+        if (!player.isAI) updateWeaponButtonUI();
+        sound.playPickup();
+        return;
+      }
+
+      if (player.bombCooldown > 0) return;
+      if (existingBombAtFeet) return;
+
+      const activeCount = gameState.bombs.filter(b => b.ownerId === player.id).length;
+      if (activeCount >= 3) return;
+
+      let radius = 2;
+      let isPower = false;
+
+      if (player.weapon === 'powerbomb' && player.weaponCharges > 0) {
+        radius = 4;
+        isPower = true;
+        player.weaponCharges--;
+        if (player.weaponCharges <= 0) {
+          player.weapon = null;
+        }
+        if (!player.isAI) updateWeaponButtonUI();
+      }
+
+      player.actionPoseTimer = 0.25;
+      player.actionPoseType = 'place';
+
+      gameState.bombs.push({
+        col: player.col,
+        row: player.row,
+        x: (player.col + 0.5) * TILE_SIZE,
+        y: (player.row + 0.5) * TILE_SIZE,
+        ownerId: player.id,
+        ownerIsAI: player.isAI,
+        radius,
+        isPower,
+        timer: 2.25,
+        maxTimer: 2.25,
+        passThroughIds: gameState.players
+          .filter(p => p.alive && Math.hypot(p.x - (player.col + 0.5) * TILE_SIZE, p.y - (player.row + 0.5) * TILE_SIZE) < TILE_SIZE * 0.9)
+          .map(p => p.id)
+      });
+
+      player.bombCooldown = 0.15;
+      sound.playPlaceBomb();
+    }
+
+    function useEquippedWeapon(player) {
+      if (!player.alive || player.weaponCooldown > 0) return;
+
+      const dx = Math.round(player.dir.x);
+      const dy = Math.round(player.dir.y);
+      const dirX = (dx === 0 && dy === 0) ? 0 : dx;
+      const dirY = (dx === 0 && dy === 0) ? 1 : dy;
+
+      if (player.heldBomb) {
+        const land = computeThrowLandingTile(player.col, player.row, dirX, dirY, 4);
+        launchThrownBomb(player, player.heldBomb, land.col, land.row);
+        player.heldBomb = null;
+        player.weaponCooldown = 0.20;
+        return;
+      }
+
+      if (!player.weapon || player.weaponCharges <= 0) return;
+      if (gameState.phase !== 'battle' && player.isAI) return;
+
+      if (player.weapon === 'powerbomb') {
+        placeBomb(player);
+        return;
+      }
+
+      if (player.weapon === 'throwglove') {
+        const bombToGrab = gameState.bombs.find(
+          b => (b.col === player.col && b.row === player.row) ||
+               (b.col === player.col + dirX && b.row === player.row + dirY)
+        );
+
+        let bombPayload;
+        if (bombToGrab) {
+          gameState.bombs = gameState.bombs.filter(b => b !== bombToGrab);
+          bombPayload = bombToGrab;
+        } else {
+          bombPayload = {
+            ownerId: player.id,
+            ownerIsAI: player.isAI,
+            radius: 2,
+            isPower: false,
+            timer: 1.5
+          };
+        }
+
+        const land = computeThrowLandingTile(player.col, player.row, dirX, dirY, 4);
+        launchThrownBomb(player, bombPayload, land.col, land.row);
+
+        player.weaponCharges--;
+        player.weaponCooldown = 0.26;
+      } else if (player.weapon === 'flame') {
+        player.actionPoseTimer = 0.42;
+        player.actionPoseType = 'flame';
+
+        const cells = [];
+        for (let step = 1; step <= 5; step++) {
+          const nc = player.col + dirX * step;
+          const nr = player.row + dirY * step;
+          if (nc < 0 || nc >= GRID_COLS || nr < 0 || nr >= GRID_ROWS) break;
+          const tile = mapGrid[nr][nc];
+          if (tile === 1 || tile === 3) break;
+          if (tile === 2) {
+            cells.push({ col: nc, row: nr });
+            destroyFurnitureAt(nc, nr);
+            break;
+          }
+          cells.push({ col: nc, row: nr });
+        }
+
+        gameState.flameStreams.push({
+          ownerId: player.id,
+          ownerIsAI: player.isAI,
+          cells,
+          dirX,
+          dirY,
+          timer: 0.42,
+          maxTimer: 0.42
+        });
+
+        cells.forEach(cell => {
+          gameState.bombs.forEach(b => {
+            if (b.col === cell.col && b.row === cell.row && b.timer > 0.05) {
+              b.timer = 0.05;
+            }
+          });
+        });
+
+        sound.playFlamethrower();
+        player.weaponCharges--;
+        player.weaponCooldown = 0.28;
+      }
+
+      if (player.weaponCharges <= 0) {
+        player.weapon = null;
+        player.weaponCharges = 0;
+      }
+      if (!player.isAI) updateWeaponButtonUI();
+    }
+
+    function detonateBomb(bomb) {
+      sound.playCuteBombExplosion(bomb.isPower);
+
+      stampScorchMarkOnStaticMap(
+        (bomb.col + 0.5) * TILE_SIZE,
+        (bomb.row + 0.5) * TILE_SIZE,
+        TILE_SIZE * 0.48
+      );
+
+      const affectedCells = [{ col: bomb.col, row: bomb.row, isCenter: true, dir: 'center' }];
+      const dirs = [
+        { dx: 0, dy: -1, name: 'up' },
+        { dx: 0, dy: 1,  name: 'down' },
+        { dx: -1, dy: 0, name: 'left' },
+        { dx: 1, dy: 0,  name: 'right' }
+      ];
+
+      dirs.forEach(d => {
+        for (let step = 1; step <= bomb.radius; step++) {
+          const nc = bomb.col + d.dx * step;
+          const nr = bomb.row + d.dy * step;
+          if (nc < 0 || nc >= GRID_COLS || nr < 0 || nr >= GRID_ROWS) break;
+
+          const tile = mapGrid[nr][nc];
+          if (tile === 1 || tile === 3) break;
+
+          if (tile === 2) {
+            affectedCells.push({
+              col: nc,
+              row: nr,
+              isCenter: false,
+              isEnd: true,
+              dir: d.name
+            });
+            destroyFurnitureAt(nc, nr);
+            break;
+          }
+
+          affectedCells.push({
+            col: nc,
+            row: nr,
+            isCenter: false,
+            isEnd: step === bomb.radius,
+            dir: d.name
+          });
+        }
+      });
+
+      gameState.explosions.push({
+        ownerId: bomb.ownerId,
+        ownerIsAI: bomb.ownerIsAI,
+        cells: affectedCells,
+        isPower: bomb.isPower,
+        timer: 0.46,
+        maxTimer: 0.46
+      });
+
+      affectedCells.forEach(c => {
+        const cx = (c.col + 0.5) * TILE_SIZE;
+        const cy = (c.row + 0.5) * TILE_SIZE;
+        for (let i = 0; i < 2; i++) {
+          const ang = Math.random() * Math.PI * 2;
+          const spd = 45 + Math.random() * 90;
+          gameState.particles.push({
+            x: cx,
+            y: cy,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd,
+            r: 4 + Math.random() * 4,
+            color: bomb.isPower ? '#e879f9' : '#fb923c',
+            life: 0.32,
+            maxLife: 0.32
+          });
+        }
+      });
+
+      gameState.bombs.forEach(other => {
+        if (other !== bomb && other.timer > 0.05) {
+          if (affectedCells.some(c => c.col === other.col && c.row === other.row)) {
+            other.timer = 0.05;
+          }
+        }
+      });
+    }
+
+    function applyHitToPlayer(player, attackerOwnerId = null) {
+      if (!player.alive || player.invulnTimer > 0 || gameState.phase !== 'battle') return;
+
+      if (player.isAI && attackerOwnerId === player.id) {
+        return;
+      }
+
+      if (player.armor > 0) {
+        player.armor--;
+        player.invulnTimer = 1.25;
+        sound.playArmorDetach();
+
+        const flyAngle = Math.atan2(-player.dir.y, -player.dir.x) + (Math.random() - 0.5) * 0.8;
+        gameState.detachedArmors.push({
+          x: player.x,
+          y: player.y - 6,
+          z: 10,
+          vx: Math.cos(flyAngle) * 125,
+          vy: Math.sin(flyAngle) * 100 - 30,
+          vz: 195,
+          rot: 0,
+          vRot: (Math.random() > 0.5 ? 1 : -1) * 11,
+          life: 1.75,
+          maxLife: 1.75,
+          splitProgress: 0
+        });
+
+        for (let i = 0; i < 10; i++) {
+          const ang = (Math.PI * 2 * i) / 10;
+          const spd = 65 + Math.random() * 85;
+          gameState.particles.push({
+            x: player.x,
+            y: player.y,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd,
+            r: 3.5,
+            color: i % 2 === 0 ? '#38bdf8' : '#facc15',
+            life: 0.4,
+            maxLife: 0.4
+          });
+        }
+        updateTopStatusStrip();
+      } else {
+        player.alive = false;
+        player.heldBomb = null;
+        sound.playAscendHeaven();
+
+        gameState.ascensions.push({
+          x: player.x,
+          y: player.y,
+          startY: player.y,
+          charDef: player.charDef,
+          timer: 0,
+          duration: 2.5
+        });
+
+        updateTopStatusStrip();
+        checkMatchEnd();
+      }
+    }
+
+    function checkMatchEnd() {
+      if (gameState.phase === 'gameover') return;
+      const alivePlayers = gameState.players.filter(p => p.alive);
+      const userPlayer = gameState.players.find(p => !p.isAI);
+
+      if (!userPlayer.alive || alivePlayers.length <= 1) {
         setTimeout(() => {
-            flash.style.transition = 'opacity 1.5s';
-            flash.style.opacity = '0';
-            isAbsorbing = false;
-            showResults(res);
-        }, 50);
-    }, 1200);
-}
+          if (gameState.phase === 'gameover') return;
+          const stillAlive = gameState.players.filter(p => p.alive);
+          const winner = stillAlive[0] || userPlayer;
+          showGameOverModal(winner, userPlayer.alive && stillAlive.length === 1);
+        }, 1600);
+      }
+    }
 
-function showResults(res) {
-    document.getElementById('ui-wrapper').style.display = 'none';
-    document.getElementById('mayaLongCount').innerText = res.maya;
-    document.getElementById('jdVal').innerText = res.jd;
-    const box = document.getElementById('ballBox');
-    res.lucky.forEach((n, i) => {
-        const b = document.createElement('div');
-        b.className = 'ball';
-        b.style.animationDelay = `${i * 0.2}s`;
-        b.innerText = n;
-        box.appendChild(b);
-    });
-    document.getElementById('result-display').style.display = 'block';
-}
-</script>
+    function showGameOverModal(winner, isUserVictory) {
+      gameState.phase = 'gameover';
+      sound.stopBGM();
+
+      const modal = document.getElementById('resultScreen');
+      const title = document.getElementById('resultTitle');
+      const subtitle = document.getElementById('resultSubtitle');
+      const avatarCanvas = document.getElementById('resultAvatarCanvas');
+      const ctx = avatarCanvas.getContext('2d');
+
+      ctx.clearRect(0, 0, 128, 128);
+      drawChibiCharacter(ctx, 64, 74, 1.38, winner.charDef, {
+        dir: { x: 0, y: 1 },
+        walkCycle: 0,
+        isMoving: false,
+        armor: 1,
+        opacity: 1,
+        weapon: null,
+        blinking: false
+      });
+
+      if (isUserVictory) {
+        title.textContent = '🏆 最後生還・完美勝出！';
+        title.className = 'text-2xl sm:text-3xl font-black text-amber-300 mb-1';
+        subtitle.textContent = `${winner.charDef.name} 成功擊退所有獵手，獨霸暗夜莊園！`;
+      } else {
+        title.textContent = '👼 靈魂升天・對決結束';
+        title.className = 'text-2xl sm:text-3xl font-black text-rose-300 mb-1';
+        subtitle.textContent = `本局最後存活者：${winner.charDef.name}`;
+      }
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    // =========================================================================
+    // 9. ZERO-GC ULTRA-FAST AI PATHFINDING
+    // =========================================================================
+    const TOTAL_CELLS = GRID_ROWS * GRID_COLS;
+    const dangerBuffer = new Uint8Array(TOTAL_CELLS);
+    const simDangerBuffer = new Uint8Array(TOTAL_CELLS);
+    const visitedBuffer = new Uint8Array(TOTAL_CELLS);
+    const bfsColQ = new Int16Array(TOTAL_CELLS);
+    const bfsRowQ = new Int16Array(TOTAL_CELLS);
+    const bfsDistQ = new Int16Array(TOTAL_CELLS);
+    const bfsFirstColQ = new Int16Array(TOTAL_CELLS);
+    const bfsFirstRowQ = new Int16Array(TOTAL_CELLS);
+    const bfsBreachQ = new Uint8Array(TOTAL_CELLS);
+
+    const DIRS_4 = [
+      { dx: 0, dy: -1 },
+      { dx: 0, dy: 1 },
+      { dx: -1, dy: 0 },
+      { dx: 1, dy: 0 }
+    ];
+
+    function projectBombDangerFlat(buf, col, row, radius) {
+      buf[row * GRID_COLS + col] = 1;
+      for (let i = 0; i < 4; i++) {
+        const d = DIRS_4[i];
+        for (let s = 1; s <= radius; s++) {
+          const nc = col + d.dx * s;
+          const nr = row + d.dy * s;
+          if (nc < 0 || nc >= GRID_COLS || nr < 0 || nr >= GRID_ROWS) break;
+          const tile = mapGrid[nr][nc];
+          if (tile === 1 || tile === 3) break;
+          buf[nr * GRID_COLS + nc] = 1;
+          if (tile === 2) break;
+        }
+      }
+    }
+
+    function updateDangerBuffer() {
+      dangerBuffer.fill(0);
+      for (let i = 0; i < gameState.bombs.length; i++) {
+        const b = gameState.bombs[i];
+        projectBombDangerFlat(dangerBuffer, b.col, b.row, b.radius);
+      }
+      for (let i = 0; i < gameState.thrownBombs.length; i++) {
+        const tb = gameState.thrownBombs[i];
+        projectBombDangerFlat(dangerBuffer, tb.targetCol, tb.targetRow, tb.radius);
+      }
+      for (let i = 0; i < gameState.explosions.length; i++) {
+        const cells = gameState.explosions[i].cells;
+        for (let j = 0; j < cells.length; j++) {
+          dangerBuffer[cells[j].row * GRID_COLS + cells[j].col] = 1;
+        }
+      }
+      for (let i = 0; i < gameState.flameStreams.length; i++) {
+        const cells = gameState.flameStreams[i].cells;
+        for (let j = 0; j < cells.length; j++) {
+          dangerBuffer[cells[j].row * GRID_COLS + cells[j].col] = 1;
+        }
+      }
+    }
+
+    function findSafeEscapeStepFast(startCol, startRow, dBuf) {
+      visitedBuffer.fill(0);
+      let head = 0;
+      let tail = 0;
+
+      bfsColQ[tail] = startCol;
+      bfsRowQ[tail] = startRow;
+      bfsDistQ[tail] = 0;
+      bfsFirstColQ[tail] = -1;
+      bfsFirstRowQ[tail] = -1;
+      tail++;
+      visitedBuffer[startRow * GRID_COLS + startCol] = 1;
+
+      while (head < tail) {
+        const c = bfsColQ[head];
+        const r = bfsRowQ[head];
+        const dist = bfsDistQ[head];
+        const fc = bfsFirstColQ[head];
+        const fr = bfsFirstRowQ[head];
+        head++;
+
+        if (dist > 0 && dBuf[r * GRID_COLS + c] === 0) {
+          return { col: fc, row: fr };
+        }
+        if (dist >= 8) continue;
+
+        for (let i = 0; i < 4; i++) {
+          const nc = c + DIRS_4[i].dx;
+          const nr = r + DIRS_4[i].dy;
+          if (nc <= 0 || nc >= GRID_COLS - 1 || nr <= 0 || nr >= GRID_ROWS - 1) continue;
+          const idx = nr * GRID_COLS + nc;
+          if (visitedBuffer[idx] || mapGrid[nr][nc] !== 0) continue;
+          let hasBomb = false;
+          for (let b = 0; b < gameState.bombs.length; b++) {
+            if (gameState.bombs[b].col === nc && gameState.bombs[b].row === nr) { hasBomb = true; break; }
+          }
+          if (hasBomb) continue;
+
+          visitedBuffer[idx] = 1;
+          bfsColQ[tail] = nc;
+          bfsRowQ[tail] = nr;
+          bfsDistQ[tail] = dist + 1;
+          bfsFirstColQ[tail] = dist === 0 ? nc : fc;
+          bfsFirstRowQ[tail] = dist === 0 ? nr : fr;
+          tail++;
+        }
+      }
+      return null;
+    }
+
+    function getSafeEscapeAfterBombingFast(ai) {
+      simDangerBuffer.set(dangerBuffer);
+      const radius = ai.weapon === 'powerbomb' ? 4 : 2;
+      projectBombDangerFlat(simDangerBuffer, ai.col, ai.row, radius);
+
+      visitedBuffer.fill(0);
+      let head = 0;
+      let tail = 0;
+
+      bfsColQ[tail] = ai.col;
+      bfsRowQ[tail] = ai.row;
+      bfsDistQ[tail] = 0;
+      bfsFirstColQ[tail] = -1;
+      bfsFirstRowQ[tail] = -1;
+      tail++;
+      visitedBuffer[ai.row * GRID_COLS + ai.col] = 1;
+
+      while (head < tail) {
+        const c = bfsColQ[head];
+        const r = bfsRowQ[head];
+        const dist = bfsDistQ[head];
+        const fc = bfsFirstColQ[head];
+        const fr = bfsFirstRowQ[head];
+        head++;
+
+        if (dist > 0 && simDangerBuffer[r * GRID_COLS + c] === 0) {
+          return { col: fc, row: fr };
+        }
+        if (dist >= 5) continue;
+
+        for (let i = 0; i < 4; i++) {
+          const nc = c + DIRS_4[i].dx;
+          const nr = r + DIRS_4[i].dy;
+          if (nc <= 0 || nc >= GRID_COLS - 1 || nr <= 0 || nr >= GRID_ROWS - 1) continue;
+          const idx = nr * GRID_COLS + nc;
+          if (visitedBuffer[idx] || mapGrid[nr][nc] !== 0 || dangerBuffer[idx]) continue;
+          let hasBomb = false;
+          for (let b = 0; b < gameState.bombs.length; b++) {
+            if (gameState.bombs[b].col === nc && gameState.bombs[b].row === nr) { hasBomb = true; break; }
+          }
+          if (hasBomb) continue;
+
+          visitedBuffer[idx] = 1;
+          bfsColQ[tail] = nc;
+          bfsRowQ[tail] = nr;
+          bfsDistQ[tail] = dist + 1;
+          bfsFirstColQ[tail] = dist === 0 ? nc : fc;
+          bfsFirstRowQ[tail] = dist === 0 ? nr : fr;
+          tail++;
+        }
+      }
+      return null;
+    }
+
+    function findHuntStepTowardsFast(startCol, startRow, goalCol, goalRow, allowFurnitureBreach) {
+      if (startCol === goalCol && startRow === goalRow) return null;
+      visitedBuffer.fill(0);
+      let head = 0;
+      let tail = 0;
+
+      bfsColQ[tail] = startCol;
+      bfsRowQ[tail] = startRow;
+      bfsDistQ[tail] = 0;
+      bfsFirstColQ[tail] = -1;
+      bfsFirstRowQ[tail] = -1;
+      bfsBreachQ[tail] = 0;
+      tail++;
+      visitedBuffer[startRow * GRID_COLS + startCol] = 1;
+
+      while (head < tail) {
+        const c = bfsColQ[head];
+        const r = bfsRowQ[head];
+        const dist = bfsDistQ[head];
+        const fc = bfsFirstColQ[head];
+        const fr = bfsFirstRowQ[head];
+        const breach = bfsBreachQ[head];
+        head++;
+
+        if (c === goalCol && r === goalRow) {
+          return {
+            step: fc >= 0 ? { col: fc, row: fr } : null,
+            breachFurniture: breach === 1,
+            dist
+          };
+        }
+        if (dist >= 26) continue;
+
+        for (let i = 0; i < 4; i++) {
+          const nc = c + DIRS_4[i].dx;
+          const nr = r + DIRS_4[i].dy;
+          if (nc <= 0 || nc >= GRID_COLS - 1 || nr <= 0 || nr >= GRID_ROWS - 1) continue;
+          const idx = nr * GRID_COLS + nc;
+          if (visitedBuffer[idx] || dangerBuffer[idx]) continue;
+          const tile = mapGrid[nr][nc];
+          if (tile === 1 || tile === 3) continue;
+          if (tile === 2 && !allowFurnitureBreach) continue;
+          let hasBomb = false;
+          for (let b = 0; b < gameState.bombs.length; b++) {
+            if (gameState.bombs[b].col === nc && gameState.bombs[b].row === nr) { hasBomb = true; break; }
+          }
+          if (hasBomb) continue;
+
+          visitedBuffer[idx] = 1;
+          if (tile === 2) {
+            if (dist === 0) {
+              return { step: { col: startCol, row: startRow }, breachFurniture: true, dist: 1 };
+            }
+            bfsColQ[tail] = nc;
+            bfsRowQ[tail] = nr;
+            bfsDistQ[tail] = dist + 1;
+            bfsFirstColQ[tail] = fc;
+            bfsFirstRowQ[tail] = fr;
+            bfsBreachQ[tail] = 1;
+            tail++;
+          } else {
+            bfsColQ[tail] = nc;
+            bfsRowQ[tail] = nr;
+            bfsDistQ[tail] = dist + 1;
+            bfsFirstColQ[tail] = dist === 0 ? nc : fc;
+            bfsFirstRowQ[tail] = dist === 0 ? nr : fr;
+            bfsBreachQ[tail] = breach;
+            tail++;
+          }
+        }
+      }
+      return null;
+    }
+
+    function hasClearLineOfSight(c1, r1, c2, r2, maxDist) {
+      if (c1 !== c2 && r1 !== r2) return false;
+      const dist = Math.abs(c1 - c2) + Math.abs(r1 - r2);
+      if (dist === 0 || dist > maxDist) return false;
+      const dx = Math.sign(c2 - c1);
+      const dy = Math.sign(r2 - r1);
+      for (let s = 1; s < dist; s++) {
+        if (mapGrid[r1 + dy * s][c1 + dx * s] !== 0) return false;
+      }
+      return true;
+    }
+
+    function isAdjacentToDestructibleFurniture(col, row) {
+      for (let i = 0; i < 4; i++) {
+        const nc = col + DIRS_4[i].dx;
+        const nr = row + DIRS_4[i].dy;
+        if (nc > 0 && nc < GRID_COLS - 1 && nr > 0 && nr < GRID_ROWS - 1 && mapGrid[nr][nc] === 2) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function updateAI(ai, dt) {
+      if (!ai.alive || gameState.phase !== 'battle') return;
+
+      ai.aiRethinkTimer -= dt;
+      const inDanger = dangerBuffer[ai.row * GRID_COLS + ai.col] === 1;
+
+      if (inDanger) {
+        const escapeStep = findSafeEscapeStepFast(ai.col, ai.row, dangerBuffer);
+        if (escapeStep) {
+          ai.aiTargetCell = escapeStep;
+        }
+      } else if (
+        ai.aiRethinkTimer <= 0 ||
+        !ai.aiTargetCell ||
+        dangerBuffer[ai.aiTargetCell.row * GRID_COLS + ai.aiTargetCell.col] === 1 ||
+        (ai.col === ai.aiTargetCell.col && ai.row === ai.aiTargetCell.row &&
+          Math.hypot(ai.x - (ai.col + 0.5) * TILE_SIZE, ai.y - (ai.row + 0.5) * TILE_SIZE) < 6)
+      ) {
+        ai.aiRethinkTimer = 0.15 + ai.aiIndex * 0.04;
+
+        const userPlayer = gameState.players.find(p => !p.isAI && p.alive);
+        const targetEnemy = userPlayer || gameState.players.find(p => p.alive && p.id !== ai.id);
+
+        let nearbyItem = null;
+        let bestItemDist = 5;
+        for (let i = 0; i < gameState.items.length; i++) {
+          const item = gameState.items[i];
+          if (dangerBuffer[item.row * GRID_COLS + item.col] === 0) {
+            const d = Math.abs(item.col - ai.col) + Math.abs(item.row - ai.row);
+            if (d < bestItemDist) {
+              bestItemDist = d;
+              nearbyItem = item;
+            }
+          }
+        }
+
+        if (targetEnemy) {
+          const distToTarget = Math.abs(targetEnemy.col - ai.col) + Math.abs(targetEnemy.row - ai.row);
+
+          if (ai.weapon === 'flame' && ai.weaponCooldown <= 0) {
+            if (hasClearLineOfSight(ai.col, ai.row, targetEnemy.col, targetEnemy.row, 5)) {
+              ai.dir = {
+                x: Math.sign(targetEnemy.col - ai.col),
+                y: Math.sign(targetEnemy.row - ai.row)
+              };
+              useEquippedWeapon(ai);
+              return;
+            }
+          } else if (ai.weapon === 'throwglove' && ai.weaponCooldown <= 0) {
+            if ((ai.col === targetEnemy.col || ai.row === targetEnemy.row) && distToTarget >= 3 && distToTarget <= 5) {
+              ai.dir = {
+                x: Math.sign(targetEnemy.col - ai.col),
+                y: Math.sign(targetEnemy.row - ai.row)
+              };
+              useEquippedWeapon(ai);
+              return;
+            }
+          }
+
+          const effectiveRadius = ai.weapon === 'powerbomb' ? 4 : 2;
+          const alignedInCross =
+            (ai.col === targetEnemy.col && Math.abs(ai.row - targetEnemy.row) <= effectiveRadius) ||
+            (ai.row === targetEnemy.row && Math.abs(ai.col - targetEnemy.col) <= effectiveRadius);
+
+          if ((distToTarget <= 2 || alignedInCross) && ai.bombCooldown <= 0) {
+            const escapeStep = getSafeEscapeAfterBombingFast(ai);
+            if (escapeStep) {
+              placeBomb(ai);
+              ai.aiTargetCell = escapeStep;
+              return;
+            }
+          }
+
+          if (nearbyItem) {
+            const itemRoute = findHuntStepTowardsFast(ai.col, ai.row, nearbyItem.col, nearbyItem.row, false);
+            if (itemRoute && itemRoute.step) {
+              ai.aiTargetCell = itemRoute.step;
+              return;
+            }
+          }
+
+          let route = findHuntStepTowardsFast(ai.col, ai.row, targetEnemy.col, targetEnemy.row, false);
+          if (!route) {
+            route = findHuntStepTowardsFast(ai.col, ai.row, targetEnemy.col, targetEnemy.row, true);
+          }
+
+          if (route) {
+            if (route.breachFurniture && isAdjacentToDestructibleFurniture(ai.col, ai.row) && ai.bombCooldown <= 0) {
+              const escapeStep = getSafeEscapeAfterBombingFast(ai);
+              if (escapeStep) {
+                placeBomb(ai);
+                ai.aiTargetCell = escapeStep;
+                return;
+              }
+            }
+            if (route.step && dangerBuffer[route.step.row * GRID_COLS + route.step.col] === 0) {
+              ai.aiTargetCell = route.step;
+              return;
+            }
+          }
+
+          if (isAdjacentToDestructibleFurniture(ai.col, ai.row) && ai.bombCooldown <= 0 &&
+              !gameState.bombs.some(b => b.ownerId === ai.id)) {
+            const escapeStep = getSafeEscapeAfterBombingFast(ai);
+            if (escapeStep) {
+              placeBomb(ai);
+              ai.aiTargetCell = escapeStep;
+              return;
+            }
+          }
+        }
+      }
+
+      if (ai.aiTargetCell) {
+        if (!inDanger && dangerBuffer[ai.aiTargetCell.row * GRID_COLS + ai.aiTargetCell.col] === 1) {
+          ai.aiTargetCell = null;
+          ai.isMoving = false;
+          return;
+        }
+
+        const tx = (ai.aiTargetCell.col + 0.5) * TILE_SIZE;
+        const ty = (ai.aiTargetCell.row + 0.5) * TILE_SIZE;
+        const dx = tx - ai.x;
+        const dy = ty - ai.y;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist > 1.5) {
+          const stepDist = Math.min(dist, ai.speed * dt);
+          const stepX = (dx / dist) * stepDist;
+          const stepY = (dy / dist) * stepDist;
+          moveEntityWithCollision(ai, stepX, stepY);
+          ai.dir = {
+            x: Math.abs(dx) > Math.abs(dy) ? Math.sign(dx) : 0,
+            y: Math.abs(dy) >= Math.abs(dx) ? Math.sign(dy) : 0
+          };
+          ai.isMoving = true;
+          ai.walkCycle += dt * 12;
+        } else {
+          ai.x = tx;
+          ai.y = ty;
+          ai.col = ai.aiTargetCell.col;
+          ai.row = ai.aiTargetCell.row;
+          ai.isMoving = false;
+        }
+      }
+    }
+
+    // =========================================================================
+    // 10. BUTTER-SMOOTH AUTO-CORNER-SLIDING MOVEMENT PHYSICS (零卡牆自動導角)
+    //     When pressing a direction near a doorway or pillar corner, the player
+    //     automatically glides into the open lane at full speed!
+    // =========================================================================
+    function isTileBlockedForPlayer(player, col, row) {
+      if (col < 0 || col >= GRID_COLS || row < 0 || row >= GRID_ROWS) return true;
+      if (mapGrid[row][col] !== 0) return true;
+      for (let i = 0; i < gameState.bombs.length; i++) {
+        const b = gameState.bombs[i];
+        if (b.col === col && b.row === row && !b.passThroughIds.includes(player.id)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function moveEntityWithCollision(player, dx, dy) {
+      const radius = TILE_SIZE * 0.27;
+
+      // Horizontal Movement + Auto-Corner Alignment
+      if (dx !== 0) {
+        const nextX = player.x + dx;
+        const checkCol = Math.floor((nextX + Math.sign(dx) * radius) / TILE_SIZE);
+        const topRow = Math.floor((player.y - radius * 0.78) / TILE_SIZE);
+        const botRow = Math.floor((player.y + radius * 0.78) / TILE_SIZE);
+
+        const topBlocked = isTileBlockedForPlayer(player, checkCol, topRow);
+        const botBlocked = isTileBlockedForPlayer(player, checkCol, botRow);
+
+        if (!topBlocked && !botBlocked) {
+          player.x = nextX;
+        } else {
+          // Snap X flush to tile edge
+          if (dx > 0) {
+            player.x = Math.min(player.x, checkCol * TILE_SIZE - radius - 0.1);
+          } else {
+            player.x = Math.max(player.x, (checkCol + 1) * TILE_SIZE + radius + 0.1);
+          }
+          // Auto-slide vertically into open adjacent lane!
+          let openRow = -1;
+          const centerRow = Math.floor(player.y / TILE_SIZE);
+          if (!isTileBlockedForPlayer(player, checkCol, centerRow)) {
+            openRow = centerRow;
+          } else if (!topBlocked) {
+            openRow = topRow;
+          } else if (!botBlocked) {
+            openRow = botRow;
+          }
+          if (openRow !== -1 && dy === 0) {
+            const targetY = (openRow + 0.5) * TILE_SIZE;
+            const diffY = targetY - player.y;
+            if (Math.abs(diffY) > 0.5) {
+              player.y += Math.sign(diffY) * Math.min(Math.abs(diffY), Math.abs(dx) * 1.05);
+            }
+          }
+        }
+      }
+
+      // Vertical Movement + Auto-Corner Alignment
+      if (dy !== 0) {
+        const nextY = player.y + dy;
+        const checkRow = Math.floor((nextY + Math.sign(dy) * radius) / TILE_SIZE);
+        const leftCol = Math.floor((player.x - radius * 0.78) / TILE_SIZE);
+        const rightCol = Math.floor((player.x + radius * 0.78) / TILE_SIZE);
+
+        const leftBlocked = isTileBlockedForPlayer(player, leftCol, checkRow);
+        const rightBlocked = isTileBlockedForPlayer(player, rightCol, checkRow);
+
+        if (!leftBlocked && !rightBlocked) {
+          player.y = nextY;
+        } else {
+          if (dy > 0) {
+            player.y = Math.min(player.y, checkRow * TILE_SIZE - radius - 0.1);
+          } else {
+            player.y = Math.max(player.y, (checkRow + 1) * TILE_SIZE + radius + 0.1);
+          }
+          // Auto-slide horizontally into open adjacent lane!
+          let openCol = -1;
+          const centerCol = Math.floor(player.x / TILE_SIZE);
+          if (!isTileBlockedForPlayer(player, centerCol, checkRow)) {
+            openCol = centerCol;
+          } else if (!leftBlocked) {
+            openCol = leftCol;
+          } else if (!rightBlocked) {
+            openCol = rightCol;
+          }
+          if (openCol !== -1 && dx === 0) {
+            const targetX = (openCol + 0.5) * TILE_SIZE;
+            const diffX = targetX - player.x;
+            if (Math.abs(diffX) > 0.5) {
+              player.x += Math.sign(diffX) * Math.min(Math.abs(diffX), Math.abs(dy) * 1.05);
+            }
+          }
+        }
+      }
+
+      player.col = Math.floor(player.x / TILE_SIZE);
+      player.row = Math.floor(player.y / TILE_SIZE);
+
+      for (let i = 0; i < gameState.bombs.length; i++) {
+        const b = gameState.bombs[i];
+        if (b.passThroughIds.includes(player.id)) {
+          const dist = Math.hypot(player.x - b.x, player.y - b.y);
+          if (dist > TILE_SIZE * 0.88) {
+            b.passThroughIds = b.passThroughIds.filter(id => id !== player.id);
+          }
+        }
+      }
+
+      for (let i = gameState.items.length - 1; i >= 0; i--) {
+        const item = gameState.items[i];
+        if (item.col === player.col && item.row === player.row) {
+          if (item.type === 'armor') {
+            player.armor += 1;
+            updateTopStatusStrip();
+          } else {
+            player.weapon = item.type;
+            player.weaponCharges = WEAPON_DEFS[item.type].charges;
+            if (!player.isAI) updateWeaponButtonUI();
+          }
+          if (!player.isAI) sound.playPickup();
+          gameState.items.splice(i, 1);
+        }
+      }
+    }
+
+    // =========================================================================
+    // 11. BULLETPROOF DIRECTIONAL CONTROLS (Direct Button Hit + Multi-Touch + Thumb Slide)
+    //     Fixes all directional control bugs:
+    //     1. Pressing Up, Down, Left, Right directly ALWAYS triggers that exact button.
+    //     2. Sliding thumb anywhere across the D-Pad smoothly switches directions.
+    //     3. Multi-touch safe: pressing Bomb/Weapon with right hand NEVER cancels left D-pad!
+    // =========================================================================
+    const inputState = {
+      up: false,
+      down: false,
+      left: false,
+      right: false
+    };
+
+    const keyState = {
+      up: false,
+      down: false,
+      left: false,
+      right: false
+    };
+
+    function bindControls() {
+      const dpad = document.getElementById('dpadContainer');
+      const btnUp = document.getElementById('btnUp');
+      const btnDown = document.getElementById('btnDown');
+      const btnLeft = document.getElementById('btnLeft');
+      const btnRight = document.getElementById('btnRight');
+      const dirBtns = { up: btnUp, down: btnDown, left: btnLeft, right: btnRight };
+
+      let dpadPointerId = null;
+
+      const setActiveDirection = (dir) => {
+        inputState.up = dir === 'up';
+        inputState.down = dir === 'down';
+        inputState.left = dir === 'left';
+        inputState.right = dir === 'right';
+        btnUp.classList.toggle('active-press', dir === 'up');
+        btnDown.classList.toggle('active-press', dir === 'down');
+        btnLeft.classList.toggle('active-press', dir === 'left');
+        btnRight.classList.toggle('active-press', dir === 'right');
+      };
+
+      const resolveDirectionFromPoint = (clientX, clientY) => {
+        // First check if point is directly inside one of the 4 circular buttons
+        const el = document.elementFromPoint(clientX, clientY);
+        if (el) {
+          const btn = el.closest('[data-dir]');
+          if (btn && btn.dataset.dir) {
+            return btn.dataset.dir;
+          }
+        }
+        // Fallback: compute angle sector from D-Pad center
+        const rect = dpad.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = clientX - cx;
+        const dy = clientY - cy;
+        if (Math.hypot(dx, dy) < 6) return null;
+        if (Math.abs(dx) > Math.abs(dy)) {
+          return dx > 0 ? 'right' : 'left';
+        } else {
+          return dy > 0 ? 'down' : 'up';
+        }
+      };
+
+      const onDpadStart = (e) => {
+        e.preventDefault();
+        sound.init();
+        dpadPointerId = e.pointerId;
+        try { dpad.setPointerCapture(e.pointerId); } catch (_) {}
+        const dir = resolveDirectionFromPoint(e.clientX, e.clientY);
+        setActiveDirection(dir);
+      };
+
+      const onDpadMove = (e) => {
+        if (dpadPointerId !== e.pointerId) return;
+        e.preventDefault();
+        const dir = resolveDirectionFromPoint(e.clientX, e.clientY);
+        setActiveDirection(dir);
+      };
+
+      const onDpadEnd = (e) => {
+        if (dpadPointerId !== e.pointerId) return;
+        e.preventDefault();
+        dpadPointerId = null;
+        setActiveDirection(null);
+      };
+
+      dpad.addEventListener('pointerdown', onDpadStart);
+      dpad.addEventListener('pointermove', onDpadMove);
+      dpad.addEventListener('pointerup', onDpadEnd);
+      dpad.addEventListener('pointercancel', onDpadEnd);
+
+      // Bomb Button (Independent pointer handling so multi-touch never conflicts)
+      const btnBomb = document.getElementById('btnBomb');
+      btnBomb.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        sound.init();
+        btnBomb.classList.add('active-press');
+        const userPlayer = gameState.players.find(p => !p.isAI);
+        if (userPlayer && (gameState.phase === 'countdown' || gameState.phase === 'fadein' || gameState.phase === 'battle')) {
+          placeBomb(userPlayer);
+        }
+      });
+      ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => {
+        btnBomb.addEventListener(ev, () => btnBomb.classList.remove('active-press'));
+      });
+
+      // Weapon Button
+      const btnWeapon = document.getElementById('btnWeapon');
+      btnWeapon.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        sound.init();
+        btnWeapon.classList.add('active-press');
+        const userPlayer = gameState.players.find(p => !p.isAI);
+        if (userPlayer && (gameState.phase === 'countdown' || gameState.phase === 'fadein' || gameState.phase === 'battle')) {
+          useEquippedWeapon(userPlayer);
+        }
+      });
+      ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => {
+        btnWeapon.addEventListener(ev, () => btnWeapon.classList.remove('active-press'));
+      });
+
+      // Keyboard support
+      window.addEventListener('keydown', (e) => {
+        if (e.repeat) return;
+        if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') keyState.up = true;
+        if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') keyState.down = true;
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keyState.left = true;
+        if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keyState.right = true;
+        if (e.key === ' ' || e.key === 'j' || e.key === 'J') {
+          const userPlayer = gameState.players.find(p => !p.isAI);
+          if (userPlayer) placeBomb(userPlayer);
+        }
+        if (e.key === 'k' || e.key === 'K' || e.key === 'Enter') {
+          const userPlayer = gameState.players.find(p => !p.isAI);
+          if (userPlayer) useEquippedWeapon(userPlayer);
+        }
+      });
+      window.addEventListener('keyup', (e) => {
+        if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') keyState.up = false;
+        if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') keyState.down = false;
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keyState.left = false;
+        if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keyState.right = false;
+      });
+
+      document.getElementById('btnCameraMode').addEventListener('click', () => {
+        gameState.cameraMode = gameState.cameraMode === 'follow' ? 'full' : 'follow';
+        document.getElementById('iconCameraFollow').classList.toggle('hidden', gameState.cameraMode !== 'follow');
+        document.getElementById('iconCameraFull').classList.toggle('hidden', gameState.cameraMode !== 'full');
+      });
+
+      document.getElementById('btnAudioToggle').addEventListener('click', () => {
+        const muted = sound.toggleMute();
+        document.getElementById('iconSoundOn').classList.toggle('hidden', muted);
+        document.getElementById('iconSoundOff').classList.toggle('hidden', !muted);
+      });
+
+      document.getElementById('btnStartGame').addEventListener('click', () => startMatch());
+      document.getElementById('btnPlayAgain').addEventListener('click', () => startMatch());
+      document.getElementById('btnChangeChar').addEventListener('click', () => {
+        document.getElementById('resultScreen').classList.add('hidden');
+        document.getElementById('resultScreen').classList.remove('flex');
+        document.getElementById('topHud').classList.add('hidden');
+        document.getElementById('bottomControls').classList.add('hidden');
+        document.getElementById('selectScreen').classList.remove('hidden');
+        gameState.phase = 'select';
+      });
+    }
+
+    function updateWeaponButtonUI() {
+      const userPlayer = gameState.players.find(p => !p.isAI);
+      const btn = document.getElementById('btnWeapon');
+      const iconEmpty = document.getElementById('weaponIconEmpty');
+      const iconFlame = document.getElementById('weaponIconFlame');
+      const iconThrow = document.getElementById('weaponIconThrow');
+      const iconPower = document.getElementById('weaponIconPowerBomb');
+      const dotsContainer = document.getElementById('weaponChargesDots');
+      const powerBombRing = document.getElementById('powerBombRing');
+
+      iconEmpty.classList.add('hidden');
+      iconFlame.classList.add('hidden');
+      iconThrow.classList.add('hidden');
+      iconPower.classList.add('hidden');
+      powerBombRing.classList.add('hidden');
+
+      if (!userPlayer || !userPlayer.weapon || userPlayer.weaponCharges <= 0) {
+        btn.classList.add('empty-weapon');
+        iconEmpty.classList.remove('hidden');
+        dotsContainer.classList.add('hidden');
+        return;
+      }
+
+      btn.classList.remove('empty-weapon');
+      if (userPlayer.weapon === 'flame') iconFlame.classList.remove('hidden');
+      if (userPlayer.weapon === 'throwglove') iconThrow.classList.remove('hidden');
+      if (userPlayer.weapon === 'powerbomb') {
+        iconPower.classList.remove('hidden');
+        powerBombRing.classList.remove('hidden');
+      }
+
+      dotsContainer.classList.remove('hidden');
+      dotsContainer.innerHTML = '';
+      for (let i = 0; i < userPlayer.weaponCharges; i++) {
+        const dot = document.createElement('span');
+        dot.className = 'w-2 h-2 rounded-full bg-amber-300';
+        dotsContainer.appendChild(dot);
+      }
+    }
+
+    function updateTopStatusStrip() {
+      const strip = document.getElementById('statusStrip');
+      strip.innerHTML = '';
+      gameState.players.forEach(p => {
+        const pill = document.createElement('div');
+        pill.className = `flex items-center gap-1 px-2.5 py-0.5 rounded-full border ${
+          !p.alive
+            ? 'bg-slate-900/50 border-slate-800 opacity-45'
+            : !p.isAI
+            ? 'bg-rose-950/85 border-rose-500/70'
+            : 'bg-slate-900/85 border-slate-700/70'
+        }`;
+
+        const dot = document.createElement('span');
+        dot.className = 'w-3 h-3 rounded-full shrink-0';
+        dot.style.backgroundColor = p.charDef.primary;
+        pill.appendChild(dot);
+
+        const statusIcon = document.createElement('span');
+        statusIcon.className = 'text-xs leading-none';
+        if (!p.alive) {
+          statusIcon.textContent = '👼';
+        } else if (p.armor > 0) {
+          statusIcon.textContent = p.armor > 1 ? `🦺×${p.armor}` : '🦺';
+        } else {
+          statusIcon.textContent = '❤️';
+        }
+        pill.appendChild(statusIcon);
+        strip.appendChild(pill);
+      });
+    }
+
+    // =========================================================================
+    // 12. MAIN GAME UPDATE LOOP
+    // =========================================================================
+    function updateGame(dt) {
+      if (gameState.phase === 'select' || gameState.phase === 'gameover') return;
+
+      if (gameState.phase === 'countdown') {
+        const prevSec = Math.ceil(gameState.countdownTimer);
+        gameState.countdownTimer -= dt;
+        const currSec = Math.max(0, Math.ceil(gameState.countdownTimer));
+        if (currSec !== prevSec && currSec > 0) {
+          document.getElementById('countdownNum').textContent = String(currSec);
+          sound.playCountdownTick(currSec <= 3);
+        }
+        if (gameState.countdownTimer <= 0) {
+          gameState.phase = 'fadein';
+          gameState.fadeTimer = 0;
+          document.getElementById('countdownBadge').classList.add('hidden');
+          sound.playCountdownTick(true);
+        }
+      } else if (gameState.phase === 'fadein') {
+        gameState.fadeTimer += dt;
+        const progress = Math.min(1, gameState.fadeTimer / 1.8);
+        gameState.players.forEach(p => {
+          if (p.isAI) p.opacity = progress;
+        });
+        if (progress >= 1) {
+          gameState.phase = 'battle';
+        }
+      }
+
+      const userPlayer = gameState.players.find(p => !p.isAI);
+      if (userPlayer && userPlayer.alive) {
+        let vx = 0;
+        let vy = 0;
+        if (inputState.up || keyState.up) vy -= 1;
+        if (inputState.down || keyState.down) vy += 1;
+        if (inputState.left || keyState.left) vx -= 1;
+        if (inputState.right || keyState.right) vx += 1;
+
+        if (vx !== 0 || vy !== 0) {
+          const len = Math.hypot(vx, vy);
+          vx /= len;
+          vy /= len;
+          moveEntityWithCollision(userPlayer, vx * userPlayer.speed * dt, vy * userPlayer.speed * dt);
+          userPlayer.dir = { x: vx, y: vy };
+          userPlayer.isMoving = true;
+          userPlayer.walkCycle += dt * 13.5;
+        } else {
+          userPlayer.isMoving = false;
+        }
+      }
+
+      gameState.players.forEach(p => {
+        if (p.bombCooldown > 0) p.bombCooldown = Math.max(0, p.bombCooldown - dt);
+        if (p.weaponCooldown > 0) p.weaponCooldown = Math.max(0, p.weaponCooldown - dt);
+        if (p.invulnTimer > 0) p.invulnTimer = Math.max(0, p.invulnTimer - dt);
+        if (p.actionPoseTimer > 0) p.actionPoseTimer = Math.max(0, p.actionPoseTimer - dt);
+        p.blinkTimer -= dt;
+        if (p.blinkTimer <= -0.14) {
+          p.blinkTimer = 2.4 + Math.random() * 2.5;
+        }
+      });
+
+      if (gameState.phase === 'battle') {
+        updateDangerBuffer();
+        for (let i = 0; i < gameState.players.length; i++) {
+          const p = gameState.players[i];
+          if (p.isAI && p.alive) {
+            updateAI(p, dt);
+          }
+        }
+
+        gameState.airdropTimer += dt;
+        if (gameState.airdropTimer >= 10.0) {
+          gameState.airdropTimer -= 10.0;
+          triggerSkyDrop();
+        }
+      }
+
+      for (let i = gameState.skyDrops.length - 1; i >= 0; i--) {
+        const sd = gameState.skyDrops[i];
+        sd.z -= sd.fallSpeed * dt;
+        sd.swayPhase += dt * 5;
+        if (sd.z <= 0) {
+          if (!gameState.items.some(it => it.col === sd.col && it.row === sd.row)) {
+            gameState.items.push({
+              col: sd.col,
+              row: sd.row,
+              type: sd.type,
+              bobPhase: Math.random() * Math.PI * 2,
+              spawnScale: 0.25
+            });
+          }
+          sound.playAirdropLand();
+          for (let k = 0; k < 8; k++) {
+            const ang = (Math.PI * 2 * k) / 8;
+            gameState.particles.push({
+              x: sd.x,
+              y: sd.y,
+              vx: Math.cos(ang) * 55,
+              vy: Math.sin(ang) * 55,
+              r: 3,
+              color: '#38bdf8',
+              life: 0.3,
+              maxLife: 0.3
+            });
+          }
+          gameState.skyDrops.splice(i, 1);
+        }
+      }
+
+      gameState.items.forEach(it => {
+        if (it.spawnScale < 1) {
+          it.spawnScale = Math.min(1, it.spawnScale + dt * 5);
+        }
+      });
+
+      for (let i = gameState.thrownBombs.length - 1; i >= 0; i--) {
+        const tb = gameState.thrownBombs[i];
+        tb.progress += dt / tb.flightDuration;
+        if (tb.progress >= 1) {
+          gameState.bombs.push({
+            col: tb.targetCol,
+            row: tb.targetRow,
+            x: tb.targetX,
+            y: tb.targetY,
+            ownerId: tb.ownerId,
+            ownerIsAI: tb.ownerIsAI,
+            radius: tb.radius,
+            isPower: tb.isPower,
+            timer: tb.remainingFuse,
+            maxTimer: 2.25,
+            passThroughIds: []
+          });
+          sound.playPlaceBomb();
+          gameState.thrownBombs.splice(i, 1);
+        } else {
+          tb.x = tb.startX + (tb.targetX - tb.startX) * tb.progress;
+          tb.y = tb.startY + (tb.targetY - tb.startY) * tb.progress;
+          tb.z = Math.sin(tb.progress * Math.PI) * 105;
+        }
+      }
+
+      for (let i = gameState.bombs.length - 1; i >= 0; i--) {
+        const b = gameState.bombs[i];
+        b.timer -= dt;
+        if (b.timer <= 0) {
+          gameState.bombs.splice(i, 1);
+          detonateBomb(b);
+        }
+      }
+
+      for (let i = gameState.explosions.length - 1; i >= 0; i--) {
+        const ex = gameState.explosions[i];
+        ex.timer -= dt;
+        if (gameState.phase === 'battle' && ex.timer > ex.maxTimer * 0.25) {
+          gameState.players.forEach(p => {
+            if (p.alive && ex.cells.some(c => c.col === p.col && c.row === p.row)) {
+              applyHitToPlayer(p, ex.ownerId);
+            }
+          });
+        }
+        if (ex.timer <= 0) {
+          gameState.explosions.splice(i, 1);
+        }
+      }
+
+      for (let i = gameState.flameStreams.length - 1; i >= 0; i--) {
+        const fs = gameState.flameStreams[i];
+        fs.timer -= dt;
+        if (gameState.phase === 'battle' && fs.timer > 0.1) {
+          gameState.players.forEach(p => {
+            if (p.alive && p.id !== fs.ownerId && fs.cells.some(c => c.col === p.col && c.row === p.row)) {
+              applyHitToPlayer(p, fs.ownerId);
+            }
+          });
+        }
+        if (fs.timer <= 0) {
+          gameState.flameStreams.splice(i, 1);
+        }
+      }
+
+      for (let i = gameState.detachedArmors.length - 1; i >= 0; i--) {
+        const da = gameState.detachedArmors[i];
+        da.life -= dt;
+        da.x += da.vx * dt;
+        da.y += da.vy * dt;
+        da.vx *= 0.94;
+        da.vy *= 0.94;
+        da.z += da.vz * dt;
+        da.vz -= 480 * dt;
+        if (da.z < 0) {
+          da.z = 0;
+          da.vz = Math.abs(da.vz) * 0.42;
+          da.vRot *= 0.6;
+        }
+        da.rot += da.vRot * dt;
+        da.splitProgress = Math.min(1, (da.maxLife - da.life) * 1.4);
+        if (da.life <= 0) {
+          gameState.detachedArmors.splice(i, 1);
+        }
+      }
+
+      for (let i = gameState.ascensions.length - 1; i >= 0; i--) {
+        const asc = gameState.ascensions[i];
+        asc.timer += dt;
+        asc.y = asc.startY - asc.timer * 65;
+        if (asc.timer >= asc.duration) {
+          gameState.ascensions.splice(i, 1);
+        }
+      }
+
+      for (let i = gameState.particles.length - 1; i >= 0; i--) {
+        const pt = gameState.particles[i];
+        pt.x += pt.vx * dt;
+        pt.y += pt.vy * dt;
+        if (pt.rot !== undefined) pt.rot += (pt.vRot || 0) * dt;
+        pt.life -= dt;
+        if (pt.life <= 0) {
+          gameState.particles.splice(i, 1);
+        }
+      }
+
+      gameState.dustMotes.forEach(m => {
+        m.x += m.vx * dt;
+        m.y += m.vy * dt;
+        if (m.y < 0) m.y = GRID_ROWS * TILE_SIZE;
+        if (m.x < 0) m.x = GRID_COLS * TILE_SIZE;
+        if (m.x > GRID_COLS * TILE_SIZE) m.x = 0;
+      });
+    }
+
+    // =========================================================================
+    // 13. HIGH-DEFINITION CHARACTER ANATOMY & FURNITURE RENDERING
+    //     - Explicitly renders:
+    //       1. Trousers/Pants (褲子: distinct left & right trouser legs + knee bend!)
+    //       2. Shoes/Boots (鞋子: soles, heels, toe caps & gold buckles!)
+    //       3. Layered Clothing (服裝層次: inner shirt collar, waistcoat/vest, outer coat lapels, belt, coat tails!)
+    //       4. Palms & 5 Articulated Fingers (手掌與手指: visible palm + thumb & fingers!)
+    //       5. Dynamic Action Poses (走路跨步、投擲揮臂、雙手噴火、舉炸彈動作!)
+    // =========================================================================
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const camera = { x: 0, y: 0, zoom: 1.0 };
+
+    function resizeCanvas() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function drawIndestructiblePillar(ctx, c, r) {
+      const x = c * TILE_SIZE;
+      const y = r * TILE_SIZE;
+      const s = TILE_SIZE;
+
+      ctx.save();
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+      ctx.beginPath();
+      ctx.ellipse(x + s / 2 + 4, y + s / 2 + 10, s * 0.45, s * 0.36, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#334155';
+      ctx.beginPath();
+      ctx.roundRect(x + 5, y + 7, s - 10, s - 10, 7);
+      ctx.fill();
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x + 7, y + 9, s - 14, s - 14);
+
+      const colGrad = ctx.createRadialGradient(x + s * 0.38, y + s * 0.35, 3, x + s / 2, y + s / 2, s * 0.38);
+      colGrad.addColorStop(0, '#f8fafc');
+      colGrad.addColorStop(0.55, '#94a3b8');
+      colGrad.addColorStop(1, '#334155');
+      ctx.fillStyle = colGrad;
+      ctx.beginPath();
+      ctx.arc(x + s / 2, y + s / 2 - 2, s * 0.35, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 2.2;
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.arc(x + s / 2, y + s / 2 - 2, s * 0.23, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawFurniturePieceToSprite(ctx, x, y, type) {
+      const s = TILE_SIZE;
+      ctx.save();
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.56)';
+      ctx.beginPath();
+      ctx.roundRect(x + 4, y + 8, s - 6, s - 6, 9);
+      ctx.fill();
+
+      switch (type) {
+        case 'fountain': {
+          ctx.fillStyle = '#475569';
+          ctx.beginPath();
+          ctx.arc(x + s / 2, y + s / 2, s * 0.44, 0, Math.PI * 2);
+          ctx.fill();
+          const waterGrad = ctx.createRadialGradient(x + s / 2, y + s / 2, 2, x + s / 2, y + s / 2, s * 0.35);
+          waterGrad.addColorStop(0, '#bae6fd');
+          waterGrad.addColorStop(0.6, '#0284c7');
+          waterGrad.addColorStop(1, '#0369a1');
+          ctx.fillStyle = waterGrad;
+          ctx.beginPath();
+          ctx.arc(x + s / 2, y + s / 2, s * 0.35, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#e2e8f0';
+          ctx.beginPath();
+          ctx.arc(x + s / 2, y + s / 2, s * 0.14, 0, Math.PI * 2);
+          ctx.fill();
+          break;
+        }
+        case 'bush': {
+          ctx.fillStyle = '#064e3b';
+          ctx.beginPath();
+          ctx.arc(x + s * 0.36, y + s * 0.42, s * 0.28, 0, Math.PI * 2);
+          ctx.arc(x + s * 0.65, y + s * 0.45, s * 0.26, 0, Math.PI * 2);
+          ctx.arc(x + s * 0.5, y + s * 0.65, s * 0.27, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#10b981';
+          ctx.beginPath();
+          ctx.arc(x + s * 0.42, y + s * 0.38, s * 0.16, 0, Math.PI * 2);
+          ctx.arc(x + s * 0.6, y + s * 0.42, s * 0.13, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#fb7185';
+          ctx.beginPath();
+          ctx.arc(x + s * 0.56, y + s * 0.36, 3.8, 0, Math.PI * 2);
+          ctx.arc(x + s * 0.35, y + s * 0.56, 3.8, 0, Math.PI * 2);
+          ctx.fill();
+          break;
+        }
+        case 'bench': {
+          ctx.fillStyle = '#451a03';
+          ctx.beginPath();
+          ctx.roundRect(x + 6, y + 15, s - 12, s - 24, 6);
+          ctx.fill();
+          ctx.fillStyle = '#92400e';
+          ctx.beginPath();
+          ctx.roundRect(x + 6, y + 11, s - 12, s - 28, 5);
+          ctx.fill();
+          ctx.strokeStyle = '#f59e0b';
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.moveTo(x + 9, y + 20); ctx.lineTo(x + s - 9, y + 20);
+          ctx.moveTo(x + 9, y + 28); ctx.lineTo(x + s - 9, y + 28);
+          ctx.stroke();
+          break;
+        }
+        case 'desk': {
+          ctx.fillStyle = '#3b1506';
+          ctx.beginPath();
+          ctx.roundRect(x + 5, y + 12, s - 10, s - 18, 6);
+          ctx.fill();
+          ctx.fillStyle = '#78350f';
+          ctx.beginPath();
+          ctx.roundRect(x + 5, y + 8, s - 10, s - 20, 6);
+          ctx.fill();
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(x + 13, y + 11, s - 26, 10);
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(x + 15, y + 13, s - 30, 6);
+          ctx.fillStyle = '#cbd5e1';
+          ctx.fillRect(x + 16, y + 27, s - 36, 7);
+          break;
+        }
+        case 'cabinet': {
+          ctx.fillStyle = '#475569';
+          ctx.beginPath();
+          ctx.roundRect(x + 7, y + 7, s - 14, s - 14, 5);
+          ctx.fill();
+          ctx.fillStyle = '#64748b';
+          ctx.fillRect(x + 10, y + 10, s - 20, 18);
+          ctx.fillRect(x + 10, y + 32, s - 20, 18);
+          ctx.fillStyle = '#fde047';
+          ctx.fillRect(x + s / 2 - 6, y + 38, 12, 3.5);
+          break;
+        }
+        case 'copier': {
+          ctx.fillStyle = '#cbd5e1';
+          ctx.beginPath();
+          ctx.roundRect(x + 7, y + 8, s - 14, s - 16, 6);
+          ctx.fill();
+          ctx.fillStyle = '#0f172a';
+          ctx.fillRect(x + 12, y + 12, s - 24, s - 30);
+          ctx.fillStyle = '#34d399';
+          ctx.fillRect(x + 14, y + 20, s - 28, 3.5);
+          break;
+        }
+        case 'bathtub': {
+          ctx.fillStyle = '#e2e8f0';
+          ctx.beginPath();
+          ctx.roundRect(x + 5, y + 7, s - 10, s - 14, 14);
+          ctx.fill();
+          const bathGrad = ctx.createLinearGradient(x, y + 10, x, y + s - 10);
+          bathGrad.addColorStop(0, '#7dd3fc');
+          bathGrad.addColorStop(1, '#0284c7');
+          ctx.fillStyle = bathGrad;
+          ctx.beginPath();
+          ctx.roundRect(x + 10, y + 12, s - 20, s - 24, 10);
+          ctx.fill();
+          ctx.fillStyle = 'rgba(255,255,255,0.85)';
+          ctx.beginPath();
+          ctx.arc(x + 20, y + 24, 4.5, 0, Math.PI * 2);
+          ctx.arc(x + 27, y + 22, 3.5, 0, Math.PI * 2);
+          ctx.arc(x + 40, y + 38, 5, 0, Math.PI * 2);
+          ctx.fill();
+          break;
+        }
+        case 'toilet': {
+          ctx.fillStyle = '#f1f5f9';
+          ctx.beginPath();
+          ctx.roundRect(x + 14, y + 7, s - 28, 14, 4);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.ellipse(x + s / 2, y + 37, 14, 16, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#38bdf8';
+          ctx.beginPath();
+          ctx.ellipse(x + s / 2, y + 37, 8, 9, 0, 0, Math.PI * 2);
+          ctx.fill();
+          break;
+        }
+        case 'washer': {
+          ctx.fillStyle = '#e2e8f0';
+          ctx.beginPath();
+          ctx.roundRect(x + 8, y + 8, s - 16, s - 16, 6);
+          ctx.fill();
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.arc(x + s / 2, y + s / 2 + 2, 14, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 2.8;
+          ctx.stroke();
+          break;
+        }
+        case 'clock': {
+          ctx.fillStyle = '#451a03';
+          ctx.beginPath();
+          ctx.roundRect(x + 9, y + 8, s - 18, s - 16, 6);
+          ctx.fill();
+          ctx.fillStyle = '#fef3c7';
+          ctx.beginPath();
+          ctx.arc(x + s / 2, y + s / 2 - 2, 13, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#f59e0b';
+          ctx.lineWidth = 2.5;
+          ctx.stroke();
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(x + s / 2, y + s / 2 - 2);
+          ctx.lineTo(x + s / 2, y + s / 2 - 10);
+          ctx.moveTo(x + s / 2, y + s / 2 - 2);
+          ctx.lineTo(x + s / 2 + 7, y + s / 2 - 2);
+          ctx.stroke();
+          break;
+        }
+        case 'statue': {
+          ctx.fillStyle = '#475569';
+          ctx.beginPath();
+          ctx.roundRect(x + 9, y + 9, s - 18, s - 18, 6);
+          ctx.fill();
+          ctx.fillStyle = '#cbd5e1';
+          ctx.beginPath();
+          ctx.arc(x + s / 2, y + s / 2, 12, 0, Math.PI * 2);
+          ctx.fill();
+          break;
+        }
+        case 'sofa': {
+          ctx.fillStyle = '#881337';
+          ctx.beginPath();
+          ctx.roundRect(x + 4, y + 7, s - 8, s - 14, 10);
+          ctx.fill();
+          ctx.fillStyle = '#e11d48';
+          ctx.beginPath();
+          ctx.roundRect(x + 9, y + 14, s - 18, s - 23, 6);
+          ctx.fill();
+          ctx.fillStyle = '#fbbf24';
+          ctx.beginPath();
+          ctx.roundRect(x + 11, y + 16, 11, 11, 3);
+          ctx.roundRect(x + s - 22, y + 16, 11, 11, 3);
+          ctx.fill();
+          break;
+        }
+        case 'table': {
+          ctx.fillStyle = '#78350f';
+          ctx.beginPath();
+          ctx.roundRect(x + 7, y + 7, s - 14, s - 14, 7);
+          ctx.fill();
+          ctx.fillStyle = 'rgba(186, 230, 253, 0.25)';
+          ctx.fillRect(x + 11, y + 11, s - 22, s - 22);
+          ctx.fillStyle = '#f43f5e';
+          ctx.fillRect(x + 16, y + 19, 13, 18);
+          ctx.fillStyle = '#fef08a';
+          ctx.beginPath();
+          ctx.arc(x + 40, y + 31, 5.5, 0, Math.PI * 2);
+          ctx.fill();
+          break;
+        }
+        case 'tv': {
+          ctx.fillStyle = '#1e293b';
+          ctx.beginPath();
+          ctx.roundRect(x + 8, y + 5, s - 16, s - 10, 5);
+          ctx.fill();
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(x + 13, y + 9, 6, s - 18);
+          ctx.fillStyle = '#94a3b8';
+          ctx.beginPath();
+          ctx.arc(x + 31, y + 14, 4, 0, Math.PI * 2);
+          ctx.arc(x + 31, y + s - 14, 4, 0, Math.PI * 2);
+          ctx.fill();
+          break;
+        }
+        case 'bed': {
+          ctx.fillStyle = '#3b0764';
+          ctx.beginPath();
+          ctx.roundRect(x + 4, y + 6, s - 8, s - 12, 8);
+          ctx.fill();
+          ctx.fillStyle = '#f8fafc';
+          ctx.beginPath();
+          ctx.roundRect(x + 8, y + 10, 20, 12, 4);
+          ctx.roundRect(x + s - 28, y + 10, 20, 12, 4);
+          ctx.fill();
+          ctx.fillStyle = '#7e22ce';
+          ctx.beginPath();
+          ctx.roundRect(x + 6, y + 25, s - 12, s - 33, 5);
+          ctx.fill();
+          break;
+        }
+        case 'wardrobe': {
+          ctx.fillStyle = '#451a03';
+          ctx.beginPath();
+          ctx.roundRect(x + 6, y + 6, s - 12, s - 12, 6);
+          ctx.fill();
+          ctx.strokeStyle = '#92400e';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(x + 10, y + 10, s - 20, s - 20);
+          ctx.fillStyle = '#fbbf24';
+          ctx.beginPath();
+          ctx.arc(x + s / 2 - 4, y + s / 2, 2.5, 0, Math.PI * 2);
+          ctx.arc(x + s / 2 + 4, y + s / 2, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+          break;
+        }
+        case 'nightstand': {
+          ctx.fillStyle = '#5c2d16';
+          ctx.beginPath();
+          ctx.roundRect(x + 10, y + 10, s - 20, s - 20, 6);
+          ctx.fill();
+          ctx.fillStyle = '#fde047';
+          ctx.beginPath();
+          ctx.arc(x + s / 2, y + s / 2, 9, 0, Math.PI * 2);
+          ctx.fill();
+          break;
+        }
+        case 'fridge': {
+          ctx.fillStyle = '#f1f5f9';
+          ctx.beginPath();
+          ctx.roundRect(x + 7, y + 6, s - 14, s - 12, 6);
+          ctx.fill();
+          ctx.strokeStyle = '#94a3b8';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(x + 7, y + s / 2);
+          ctx.lineTo(x + s - 7, y + s / 2);
+          ctx.stroke();
+          ctx.fillStyle = '#64748b';
+          ctx.fillRect(x + 11, y + 15, 3.5, 11);
+          ctx.fillRect(x + 11, y + s / 2 + 4, 3.5, 13);
+          break;
+        }
+        case 'stove': {
+          ctx.fillStyle = '#334155';
+          ctx.beginPath();
+          ctx.roundRect(x + 6, y + 6, s - 12, s - 12, 6);
+          ctx.fill();
+          [[21, 21], [45, 21], [21, 45], [45, 45]].forEach(([bx, by]) => {
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.arc(x + bx, y + by, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#fef08a';
+            ctx.beginPath();
+            ctx.arc(x + bx, y + by, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+          });
+          break;
+        }
+        case 'island': {
+          ctx.fillStyle = '#f8fafc';
+          ctx.beginPath();
+          ctx.roundRect(x + 6, y + 9, s - 12, s - 18, 6);
+          ctx.fill();
+          ctx.strokeStyle = '#cbd5e1';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(x + 9, y + 12, s - 18, s - 24);
+          ctx.fillStyle = '#d97706';
+          ctx.fillRect(x + 14, y + 19, 16, 20);
+          ctx.fillStyle = '#ef4444';
+          ctx.beginPath();
+          ctx.arc(x + 42, y + 29, 5, 0, Math.PI * 2);
+          ctx.fill();
+          break;
+        }
+        case 'ac_unit': {
+          ctx.fillStyle = '#cbd5e1';
+          ctx.beginPath();
+          ctx.roundRect(x + 7, y + 10, s - 14, s - 20, 5);
+          ctx.fill();
+          ctx.fillStyle = '#1e293b';
+          ctx.beginPath();
+          ctx.arc(x + s / 2 - 4, y + s / 2, 12, 0, Math.PI * 2);
+          ctx.fill();
+          break;
+        }
+        case 'planter': {
+          ctx.fillStyle = '#7c2d12';
+          ctx.beginPath();
+          ctx.roundRect(x + 7, y + 12, s - 14, s - 24, 6);
+          ctx.fill();
+          ctx.fillStyle = '#16a34a';
+          ctx.beginPath();
+          ctx.arc(x + 22, y + s / 2, 10, 0, Math.PI * 2);
+          ctx.arc(x + 44, y + s / 2, 10, 0, Math.PI * 2);
+          ctx.fill();
+          break;
+        }
+      }
+      ctx.restore();
+    }
+
+    function drawTacticalArmorVest(ctx, isReinforced = false, splitOffset = 0) {
+      ctx.save();
+      const mainColor = isReinforced ? '#eab308' : '#0284c7';
+      const plateColor = isReinforced ? '#fef08a' : '#38bdf8';
+      const trimColor = '#e2e8f0';
+
+      ctx.save();
+      ctx.translate(-splitOffset, 0);
+      ctx.fillStyle = mainColor;
+      ctx.strokeStyle = '#07080d';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.ellipse(-11.5, -3.5, 5.8, 4.6, -0.3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#1e293b';
+      ctx.beginPath();
+      ctx.roundRect(-11.5, -4.5, 11.5, 14.5, 3.5);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = mainColor;
+      ctx.beginPath();
+      ctx.roundRect(-9.8, -3, 8.8, 11.5, 2);
+      ctx.fill();
+      ctx.restore();
+
+      ctx.save();
+      ctx.translate(splitOffset, 0);
+      ctx.fillStyle = mainColor;
+      ctx.strokeStyle = '#07080d';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.ellipse(11.5, -3.5, 5.8, 4.6, 0.3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#1e293b';
+      ctx.beginPath();
+      ctx.roundRect(0, -4.5, 11.5, 14.5, 3.5);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = mainColor;
+      ctx.beginPath();
+      ctx.roundRect(1, -3, 8.8, 11.5, 2);
+      ctx.fill();
+      ctx.restore();
+
+      if (splitOffset < 4) {
+        ctx.fillStyle = trimColor;
+        ctx.fillRect(-10.5, 1.5, 21, 2.5);
+        ctx.fillStyle = plateColor;
+        ctx.beginPath();
+        ctx.arc(0, 2.7, 4.4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#07080d';
+        ctx.lineWidth = 1.4;
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    // Helper: Draw Articulated Hand with Visible Palm (手掌) and 5 Spread Fingers (五根手指)!
+    function drawArticulatedHandAndFingers(ctx, hx, hy, angle, skinColor, isGloved = false) {
+      ctx.save();
+      ctx.translate(hx, hy);
+      ctx.rotate(angle);
+
+      const handFill = isGloved ? '#38bdf8' : skinColor;
+      ctx.fillStyle = handFill;
+      ctx.strokeStyle = '#07080d';
+      ctx.lineWidth = 1.25;
+
+      // 5 Distinct Fingers fanning out from the palm!
+      // Thumb (大拇指) + Index, Middle, Ring, Pinky (食指、中指、無名指、小指)
+      const fingerSpecs = [
+        { ang: -0.75, len: 3.8, w: 1.5, ox: -2.2, oy: -0.5 }, // Thumb
+        { ang: -0.32, len: 4.5, w: 1.4, ox: -1.6, oy: -2.2 }, // Index
+        { ang: -0.04, len: 5.0, w: 1.4, ox:  0.0, oy: -2.5 }, // Middle
+        { ang:  0.24, len: 4.4, w: 1.35, ox: 1.5, oy: -2.2 }, // Ring
+        { ang:  0.52, len: 3.6, w: 1.25, ox: 2.6, oy: -1.4 }  // Pinky
+      ];
+
+      fingerSpecs.forEach(f => {
+        ctx.save();
+        ctx.translate(f.ox, f.oy);
+        ctx.rotate(f.ang);
+        ctx.beginPath();
+        ctx.roundRect(-f.w / 2, -f.len, f.w, f.len + 1.2, f.w / 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      });
+
+      // Rounded Palm (手掌) with subtle palm crease
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 3.6, 3.2, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Palm lifeline crease detail
+      ctx.strokeStyle = isGloved ? '#0284c7' : 'rgba(120, 53, 15, 0.45)';
+      ctx.lineWidth = 0.9;
+      ctx.beginPath();
+      ctx.arc(0.4, 0.5, 1.6, 0.2 * Math.PI, 0.9 * Math.PI);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // 14. ULTRA-DETAILED CHARACTER RENDERER (4.0)
+    //     Clearly shows:
+    //     - Layered clothing (Shirt collar, Waistcoat, Open Coat Lapels, Hem & Belt)
+    //     - Pants / Trousers (褲子: articulated thighs, knees & cuffs)
+    //     - Shoes / Boots (鞋子: heels, thick soles, toe caps & buckles)
+    //     - Palms & 5 Fingers (手掌與五指)
+    //     - Full Dynamic Action Poses (Walking stride, Bomb Throw Windup, Flame Bracing)
+    // =========================================================================
+    function drawChibiCharacter(ctx, x, y, scale, charDef, state) {
+      if (state.opacity <= 0.01) return;
+      ctx.save();
+      ctx.globalAlpha = state.opacity;
+      ctx.translate(x, y);
+      ctx.scale(scale, scale);
+
+      const isMoving = !!state.isMoving;
+      const walkSin = isMoving ? Math.sin(state.walkCycle || 0) : 0;
+      const walkCos = isMoving ? Math.cos(state.walkCycle || 0) : 0;
+      const bob = isMoving ? Math.abs(walkSin) * -3.4 : Math.sin(performance.now() * 0.004) * -0.8;
+      const stride = walkSin * 6.8;
+      const armSwing = walkSin * 6.2;
+
+      // Dynamic lean in movement direction
+      const leanX = isMoving && state.dir ? state.dir.x * 2.2 : 0;
+
+      // 1. Ground Shadow
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+      ctx.beginPath();
+      ctx.ellipse(0, 22, 17, 6.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 2. Flowing Multi-Pleated Outer Cape
+      ctx.save();
+      ctx.translate(leanX * 0.5, bob);
+      const capeSway = walkSin * 3.8 - leanX * 1.2;
+      ctx.fillStyle = charDef.capeColor || charDef.secondary;
+      ctx.strokeStyle = '#07080d';
+      ctx.lineWidth = 2.0;
+      ctx.beginPath();
+      ctx.moveTo(-10, -4);
+      ctx.quadraticCurveTo(-18 + capeSway, 6, -15 + capeSway, 15.5);
+      ctx.lineTo(-5 + capeSway * 0.6, 13.5);
+      ctx.lineTo(5 + capeSway * 0.6, 15.5);
+      ctx.lineTo(15 + capeSway, 15.5);
+      ctx.quadraticCurveTo(18 + capeSway, 6, 10, -4);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // 3. VISIBLE PANTS / TROUSERS (褲子) & ARTICULATED SHOES (鞋子) WITH WALKING STRIDE!
+      const leftLegY = stride * 0.55;
+      const rightLegY = -stride * 0.55;
+      const leftKneeLift = stride < 0 ? Math.abs(stride) * 0.35 : 0;
+      const rightKneeLift = stride > 0 ? Math.abs(stride) * 0.35 : 0;
+
+      [
+        { side: -1, lx: -5.4, ly: leftLegY, lift: leftKneeLift },
+        { side:  1, lx:  5.4, ly: rightLegY, lift: rightKneeLift }
+      ].forEach(leg => {
+        ctx.save();
+        ctx.translate(leg.lx + leanX * 0.4, 8 + bob * 0.4);
+
+        // Trouser Leg (褲管與膝部摺痕)
+        ctx.fillStyle = charDef.pantsColor || '#1e293b';
+        ctx.strokeStyle = '#07080d';
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.roundRect(-3.6, 0, 7.2, 8.5 + leg.ly * 0.4 - leg.lift, 2.5);
+        ctx.fill();
+        ctx.stroke();
+
+        // Trouser cuff trim (褲腳滾邊)
+        ctx.fillStyle = charDef.accent;
+        ctx.fillRect(-3.4, 6.5 + leg.ly * 0.4 - leg.lift, 6.8, 1.5);
+
+        // Detailed Shoe / Boot (鞋子：鞋筒、鞋頭高光、厚鞋底與鞋釦)
+        const sy = 9.5 + leg.ly * 0.5 - leg.lift;
+        ctx.translate(leg.side * 0.6, sy);
+        ctx.rotate(leg.ly * 0.03);
+
+        // Thick Shoe Sole (鞋底與鞋跟)
+        ctx.fillStyle = '#090d16';
+        ctx.beginPath();
+        ctx.roundRect(-4.6, 1.2, 9.6, 3.2, 1.5);
+        ctx.fill();
+
+        // Shoe Upper Body (鞋面)
+        ctx.fillStyle = charDef.shoeColor || '#451a03';
+        ctx.strokeStyle = '#07080d';
+        ctx.lineWidth = 1.7;
+        ctx.beginPath();
+        ctx.ellipse(0.2, 0.2, 4.8, 3.2, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Shoe Toe Cap Specular Shine (鞋頭亮面高光)
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.32)';
+        ctx.beginPath();
+        ctx.ellipse(1.5, -0.6, 2.0, 1.1, -0.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Gold Shoe Buckle / Laces (鞋釦)
+        ctx.fillStyle = charDef.accent;
+        ctx.fillRect(-1.5, -1.8, 3.2, 2.0);
+        ctx.restore();
+      });
+
+      ctx.translate(leanX, bob);
+
+      // 4. MULTI-LAYERED CLOTHING TORSO (服裝造型層次感：內襯領口 + 馬甲背心 + 外套大衣翻領 + 腰帶)
+      // Layer A: Inner Waistcoat / Vest (內層馬甲背心)
+      ctx.fillStyle = charDef.vestColor || charDef.secondary;
+      ctx.strokeStyle = '#07080d';
+      ctx.lineWidth = 2.0;
+      ctx.beginPath();
+      ctx.roundRect(-9.5, -6, 19, 16, 4);
+      ctx.fill();
+      ctx.stroke();
+
+      // Layer B: Crisp Inner Shirt V-Collar & Tie/Cravat (高明度內襯領口與領結)
+      ctx.fillStyle = charDef.shirtColor || '#ffffff';
+      ctx.beginPath();
+      ctx.moveTo(-4.5, -6);
+      ctx.lineTo(4.5, -6);
+      ctx.lineTo(0, 1.5);
+      ctx.closePath();
+      ctx.fill();
+
+      // Cravat / Bowtie / Cross Ribbon
+      ctx.fillStyle = charDef.hatType === 'nurse' ? '#e11d48' : charDef.accent;
+      ctx.beginPath();
+      ctx.arc(0, -3.5, 2.4, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Layer C: Tailored Outer Coat Left & Right Panels with Split Hem & Lapels (外層大衣與翻領)
+      ctx.fillStyle = charDef.primary;
+      ctx.strokeStyle = '#07080d';
+      ctx.lineWidth = 2.0;
+
+      // Left Coat Panel & Lapel
+      ctx.beginPath();
+      ctx.moveTo(-8, -6.5);
+      ctx.lineTo(-3, -6.5);
+      ctx.lineTo(-3.5, 11.5);
+      ctx.lineTo(-11.5, 11.5);
+      ctx.quadraticCurveTo(-12.5, 1, -8, -6.5);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Right Coat Panel & Lapel
+      ctx.beginPath();
+      ctx.moveTo(3, -6.5);
+      ctx.lineTo(8, -6.5);
+      ctx.quadraticCurveTo(12.5, 1, 11.5, 11.5);
+      ctx.lineTo(3.5, 11.5);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Layer D: Tailored Leather Belt, Gold Buckle & Coat Buttons
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(-10.5, 4.2, 21, 3.2);
+      ctx.strokeStyle = charDef.accent;
+      ctx.lineWidth = 1.6;
+      ctx.strokeRect(-2.6, 3.8, 5.2, 4.0);
+
+      // Gold Coat Buttons on both panels
+      ctx.fillStyle = charDef.accent;
+      [-5.5, 5.5].forEach(bx => {
+        ctx.beginPath();
+        ctx.arc(bx, -1, 1.3, 0, Math.PI * 2);
+        ctx.arc(bx, 2.2, 1.3, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // 5. EXPLICITLY WORN PHYSICAL ARMOR VEST ON TORSO (when armor > 0)
+      if (state.armor > 0) {
+        drawTacticalArmorVest(ctx, state.armor > 1, 0);
+        ctx.strokeStyle = state.armor > 1 ? 'rgba(250, 204, 21, 0.78)' : 'rgba(56, 189, 248, 0.72)';
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        ctx.arc(0, -1, 24, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // 6. ARTICULATED ARMS, SLEEVE CUFFS, PALMS & 5 FINGERS (手袖、手掌與五根手指 + 動作演出!)
+      const isThrowing = state.actionPoseTimer > 0 && state.actionPoseType === 'throw';
+      const isFlaming = state.actionPoseTimer > 0 && state.actionPoseType === 'flame';
+      const isPlacing = state.actionPoseTimer > 0 && state.actionPoseType === 'place';
+
+      if (state.heldBomb) {
+        // Pose: Both arms raised high overhead gripping a bomb with spread fingers!
+        [-11, 11].forEach((ax, idx) => {
+          ctx.save();
+          ctx.fillStyle = charDef.primary;
+          ctx.strokeStyle = '#07080d';
+          ctx.lineWidth = 1.8;
+          ctx.beginPath();
+          ctx.roundRect(ax - 3, -18, 6, 13, 3);
+          ctx.fill();
+          ctx.stroke();
+          drawArticulatedHandAndFingers(
+            ctx,
+            ax * 0.92,
+            -22,
+            idx === 0 ? 0.35 : -0.35,
+            charDef.skin,
+            state.weapon === 'throwglove'
+          );
+          ctx.restore();
+        });
+      } else {
+        // Left & Right Articulated Sleeves + Palms + 5 Fingers
+        const leftArmY = isThrowing ? -8 : isFlaming ? -2 : armSwing * 0.55;
+        const rightArmY = isThrowing ? -11 : isFlaming ? -2 : -armSwing * 0.55;
+        const leftAngle = isThrowing ? -0.8 : -0.35 + walkSin * 0.25;
+        const rightAngle = isThrowing ? 0.9 : 0.35 - walkSin * 0.25;
+
+        // Left Arm Sleeve + Cuff + Hand with 5 Fingers
+        ctx.save();
+        ctx.translate(-12.5, -2 + leftArmY * 0.5);
+        ctx.rotate(leftAngle * 0.4);
+        ctx.fillStyle = charDef.primary;
+        ctx.strokeStyle = '#07080d';
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.roundRect(-3.2, -3, 6.4, 9, 3);
+        ctx.fill();
+        ctx.stroke();
+        // White sleeve cuff
+        ctx.fillStyle = charDef.shirtColor || '#ffffff';
+        ctx.fillRect(-2.8, 4.5, 5.6, 2);
+        drawArticulatedHandAndFingers(ctx, -1, 8.5, 0.25, charDef.skin, state.weapon === 'throwglove');
+        ctx.restore();
+
+        // Right Arm Sleeve + Cuff + Hand with 5 Fingers (& Equipped Weapon)
+        ctx.save();
+        ctx.translate(12.5, -2 + rightArmY * 0.5);
+        ctx.rotate(rightAngle * 0.4);
+        ctx.fillStyle = charDef.primary;
+        ctx.strokeStyle = '#07080d';
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.roundRect(-3.2, -3, 6.4, 9, 3);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = charDef.shirtColor || '#ffffff';
+        ctx.fillRect(-2.8, 4.5, 5.6, 2);
+        drawArticulatedHandAndFingers(ctx, 1, 8.5, -0.25, charDef.skin, state.weapon === 'throwglove');
+
+        if (state.weapon === 'flame') {
+          ctx.fillStyle = '#ea580c';
+          ctx.strokeStyle = '#07080d';
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.roundRect(0, 5, 12, 6.5, 2.5);
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = '#fde047';
+          ctx.beginPath();
+          ctx.arc(13, 8.2, 3, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (state.weapon === 'powerbomb') {
+          ctx.fillStyle = '#c026d3';
+          ctx.strokeStyle = '#f5d0fe';
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.arc(4, 9, 5.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      // 7. SCULPTED HEAD, EARS, HAIR STRANDS & EXPRESSIVE EYES
+      if (charDef.hatType === 'nurse') {
+        ctx.fillStyle = charDef.hairColor;
+        ctx.strokeStyle = '#07080d';
+        ctx.lineWidth = 2;
+        [-15.5, 15.5].forEach((tx, idx) => {
+          ctx.beginPath();
+          ctx.ellipse(tx, -8, 4.8, 9.8, idx === 0 ? 0.35 : -0.35, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = '#fb7185';
+          ctx.beginPath();
+          ctx.arc(tx * 0.82, -13.5, 3.2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = charDef.hairColor;
+        });
+      }
+
+      // Ears
+      ctx.fillStyle = charDef.skin;
+      ctx.strokeStyle = '#07080d';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.arc(-13.2, -10, 3.3, 0, Math.PI * 2);
+      ctx.arc(13.2, -10, 3.3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Head Base
+      ctx.fillStyle = charDef.skin;
+      ctx.strokeStyle = '#07080d';
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      ctx.arc(0, -11.2, 13.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Layered Hair Bangs + Gloss Highlight
+      ctx.fillStyle = charDef.hairColor;
+      ctx.beginPath();
+      ctx.arc(0, -13.2, 13.0, Math.PI * 1.05, Math.PI * 1.95);
+      ctx.lineTo(10, -10.5);
+      ctx.lineTo(6, -14.8);
+      ctx.lineTo(2, -10.5);
+      ctx.lineTo(-2, -15.0);
+      ctx.lineTo(-6, -10.5);
+      ctx.lineTo(-10, -14.0);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.30)';
+      ctx.lineWidth = 2.2;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.arc(0, -13.5, 9.6, Math.PI * 1.2, Math.PI * 1.65);
+      ctx.stroke();
+
+      const lookX = (state.dir ? state.dir.x : 0) * 2.6;
+      const lookY = (state.dir ? state.dir.y : 1) * 1.5;
+
+      [-5.2, 5.2].forEach((ex, idx) => {
+        ctx.strokeStyle = charDef.hairColor;
+        ctx.lineWidth = 1.9;
+        ctx.beginPath();
+        ctx.moveTo(ex + lookX - 3.3, -14.0 + lookY + (idx === 0 ? 0.5 : -0.5));
+        ctx.lineTo(ex + lookX + 3.3, -14.0 + lookY + (idx === 0 ? -0.5 : 0.5));
+        ctx.stroke();
+
+        if (state.blinking) {
+          ctx.strokeStyle = '#07080d';
+          ctx.lineWidth = 2.2;
+          ctx.beginPath();
+          ctx.arc(ex + lookX, -9.6 + lookY, 3, 0.1 * Math.PI, 0.9 * Math.PI);
+          ctx.stroke();
+        } else {
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.ellipse(ex + lookX, -9.6 + lookY, 3.5, 4.0, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#07080d';
+          ctx.beginPath();
+          ctx.ellipse(ex + lookX, -9.6 + lookY, 3.0, 3.6, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = charDef.eyeColor;
+          ctx.beginPath();
+          ctx.arc(ex + lookX, -9.0 + lookY, 2.2, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#090d16';
+          ctx.beginPath();
+          ctx.arc(ex + lookX, -9.0 + lookY, 1.0, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(ex + lookX - 1.0, -10.6 + lookY, 1.3, 0, Math.PI * 2);
+          ctx.arc(ex + lookX + 1.0, -8.0 + lookY, 0.65, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        if (charDef.hatType === 'detective' && idx === 1) {
+          ctx.strokeStyle = '#fbbf24';
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.arc(ex + lookX, -9.6 + lookY, 4.8, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      });
+
+      ctx.fillStyle = 'rgba(244, 63, 94, 0.42)';
+      ctx.beginPath();
+      ctx.ellipse(-8.2 + lookX * 0.4, -6.5 + lookY * 0.4, 2.6, 1.4, 0, 0, Math.PI * 2);
+      ctx.ellipse(8.2 + lookX * 0.4, -6.5 + lookY * 0.4, 2.6, 1.4, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      if (isThrowing || isFlaming || isPlacing) {
+        // Determined action mouth ("O" expression)
+        ctx.fillStyle = '#9f1239';
+        ctx.arc(lookX * 0.6, -5.2 + lookY * 0.5, 2.0, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.arc(lookX * 0.6, -5.8 + lookY * 0.5, 1.8, 0.15 * Math.PI, 0.85 * Math.PI);
+        ctx.stroke();
+      }
+
+      // 8. Signature Headwear
+      if (charDef.hatType === 'detective') {
+        ctx.fillStyle = '#1e3a8a';
+        ctx.strokeStyle = '#07080d';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(0, -19.5, 15.8, 5.2, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#2563eb';
+        ctx.beginPath();
+        ctx.arc(0, -20.5, 11.2, Math.PI, 0);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillRect(-10, -21.5, 20, 3);
+      } else if (charDef.hatType === 'nurse') {
+        ctx.fillStyle = '#fff1f2';
+        ctx.strokeStyle = '#07080d';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(-11, -28, 22, 10, 4.5);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#e11d48';
+        ctx.fillRect(-1.7, -26, 3.4, 6.8);
+        ctx.fillRect(-4, -23.8, 8, 2.5);
+      } else if (charDef.hatType === 'jester') {
+        ctx.fillStyle = '#7e22ce';
+        ctx.strokeStyle = '#07080d';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-12, -18.5);
+        ctx.quadraticCurveTo(-20, -31.5, -5, -27);
+        ctx.lineTo(0, -20.5);
+        ctx.lineTo(5, -27);
+        ctx.quadraticCurveTo(20, -31.5, 12, -18.5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#facc15';
+        ctx.beginPath();
+        ctx.arc(-14, -27, 3.4, 0, Math.PI * 2);
+        ctx.arc(14, -27, 3.4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      } else if (charDef.hatType === 'witch') {
+        ctx.fillStyle = '#065f46';
+        ctx.strokeStyle = '#07080d';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(0, -19.5, 16, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(-10, -19.5);
+        ctx.lineTo(2.5, -34.5);
+        ctx.lineTo(10, -19.5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#f97316';
+        ctx.fillRect(-9, -22, 18, 3.4);
+      }
+
+      // Draw Lifted Bomb overhead if holding one
+      if (state.heldBomb) {
+        ctx.fillStyle = '#0f172a';
+        ctx.strokeStyle = '#fb7185';
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        ctx.arc(0, -35, 12.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#facc15';
+        ctx.beginPath();
+        ctx.arc(6, -45, 3.8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    function drawAscensionEffect(ctx, asc) {
+      const progress = Math.min(1, asc.timer / asc.duration);
+      const alpha = progress < 0.8 ? 1 : (1 - progress) / 0.2;
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
+
+      ctx.fillStyle = 'rgba(253, 224, 71, 0.25)';
+      ctx.beginPath();
+      ctx.moveTo(asc.x - 18, asc.startY - 220);
+      ctx.lineTo(asc.x + 18, asc.startY - 220);
+      ctx.lineTo(asc.x + 34, asc.startY + 20);
+      ctx.lineTo(asc.x - 34, asc.startY + 20);
+      ctx.closePath();
+      ctx.fill();
+
+      const wingFlap = Math.sin(asc.timer * 15) * 0.36;
+      ctx.save();
+      ctx.translate(asc.x, asc.y - 6);
+
+      ctx.save();
+      ctx.rotate(-0.3 + wingFlap);
+      ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = '#bae6fd';
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.ellipse(-20, 0, 16, 8, -0.2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.save();
+      ctx.rotate(0.3 - wingFlap);
+      ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = '#bae6fd';
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.ellipse(20, 0, 16, 8, 0.2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.restore();
+
+      drawChibiCharacter(ctx, asc.x, asc.y, 1.15, asc.charDef, {
+        dir: { x: 0, y: 1 },
+        walkCycle: 0,
+        isMoving: false,
+        armor: 0,
+        opacity: alpha * 0.88,
+        weapon: null,
+        blinking: true
+      });
+
+      ctx.strokeStyle = '#fde047';
+      ctx.lineWidth = 3.2;
+      ctx.beginPath();
+      ctx.ellipse(asc.x, asc.y - 40, 12, 4.2, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function renderScene() {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      ctx.clearRect(0, 0, vw, vh);
+
+      ctx.fillStyle = '#06070c';
+      ctx.fillRect(0, 0, vw, vh);
+
+      const worldW = GRID_COLS * TILE_SIZE;
+      const worldH = GRID_ROWS * TILE_SIZE;
+      const userPlayer = gameState.players.find(p => !p.isAI) || gameState.players[0];
+
+      const fitZoom = Math.min((vw - 16) / worldW, (vh - 120) / worldH);
+      const followZoom = Math.max(fitZoom * 1.52, Math.min(vw, vh) / (TILE_SIZE * 8.4));
+
+      const targetZoom = gameState.cameraMode === 'full' ? fitZoom : followZoom;
+      camera.zoom += (targetZoom - camera.zoom) * 0.16;
+
+      if (userPlayer) {
+        const targetX = gameState.cameraMode === 'full' ? worldW / 2 : userPlayer.x;
+        const targetY = gameState.cameraMode === 'full' ? worldH / 2 + 24 : userPlayer.y + 18;
+        camera.x += (targetX - camera.x) * 0.18;
+        camera.y += (targetY - camera.y) * 0.18;
+      }
+
+      const nowSec = performance.now() * 0.001;
+
+      ctx.save();
+      ctx.translate(vw / 2, vh / 2);
+      ctx.scale(camera.zoom, camera.zoom);
+      ctx.translate(-camera.x, -camera.y);
+
+      // 1. Single Blit of Pre-Baked Static Map
+      ctx.drawImage(staticMapCanvas, 0, 0);
+
+      // 2. Draw Remaining Destructible Furniture from Sprite Cache
+      for (const key in furnitureMap) {
+        const fObj = furnitureMap[key];
+        const parts = key.split(',');
+        const c = parseInt(parts[0], 10);
+        const r = parseInt(parts[1], 10);
+        const sprite = furnitureSprites[fObj.type];
+        if (sprite) {
+          ctx.drawImage(sprite, c * TILE_SIZE, r * TILE_SIZE);
+        }
+      }
+
+      // 3. Draw Revealed / Dropped Weapons & Armor Pickups
+      for (let i = 0; i < gameState.items.length; i++) {
+        const item = gameState.items[i];
+        const ix = (item.col + 0.5) * TILE_SIZE;
+        const iy = (item.row + 0.5) * TILE_SIZE + Math.sin(nowSec * 3.8 + item.bobPhase) * 3.5;
+        const def = WEAPON_DEFS[item.type];
+        if (!def) continue;
+        const sc = item.spawnScale || 1;
+
+        ctx.save();
+        ctx.translate(ix, iy);
+        ctx.scale(sc, sc);
+
+        ctx.fillStyle = def.color;
+        ctx.globalAlpha = 0.24;
+        ctx.beginPath();
+        ctx.arc(0, 0, 24, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.94)';
+        ctx.strokeStyle = def.color;
+        ctx.lineWidth = 2.8;
+        ctx.beginPath();
+        ctx.arc(0, 0, 18.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        if (item.type === 'flame') {
+          ctx.fillStyle = '#f97316';
+          ctx.beginPath();
+          ctx.arc(0, 2, 8.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#fef08a';
+          ctx.beginPath();
+          ctx.arc(0, 3, 4.2, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (item.type === 'throwglove') {
+          ctx.fillStyle = '#38bdf8';
+          ctx.beginPath();
+          ctx.arc(-2, 2, 7.2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.arc(3, -3, 5.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#facc15';
+          ctx.beginPath();
+          ctx.arc(6, -7, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (item.type === 'powerbomb') {
+          ctx.fillStyle = '#d946ef';
+          ctx.beginPath();
+          ctx.arc(0, 1, 8.8, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#fde047';
+          ctx.beginPath();
+          ctx.arc(0, 1, 3.8, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (item.type === 'armor') {
+          drawTacticalArmorVest(ctx, false, 0);
+        }
+        ctx.restore();
+      }
+
+      // 4. Draw Active Bombs on Ground
+      for (let i = 0; i < gameState.bombs.length; i++) {
+        const b = gameState.bombs[i];
+        const pulse = 1 + Math.sin((b.maxTimer - b.timer) * 15) * 0.13;
+        ctx.save();
+        ctx.translate(b.x, b.y);
+        ctx.scale(pulse, pulse);
+
+        ctx.fillStyle = 'rgba(0,0,0,0.52)';
+        ctx.beginPath();
+        ctx.ellipse(0, 16, 16, 6, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = b.isPower ? '#701a75' : '#0f172a';
+        ctx.strokeStyle = b.isPower ? '#f5d0fe' : '#fb7185';
+        ctx.lineWidth = 2.8;
+        ctx.beginPath();
+        ctx.arc(0, 0, 18, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(255,255,255,0.42)';
+        ctx.beginPath();
+        ctx.arc(-6, -6, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#facc15';
+        ctx.beginPath();
+        ctx.arc(10, -16, 5 + Math.random() * 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // 5. Draw Bomb Cross Explosions
+      for (let i = 0; i < gameState.explosions.length; i++) {
+        const ex = gameState.explosions[i];
+        const alpha = Math.min(1, (ex.timer / ex.maxTimer) * 1.45);
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        for (let j = 0; j < ex.cells.length; j++) {
+          const c = ex.cells[j];
+          const cx = (c.col + 0.5) * TILE_SIZE;
+          const cy = (c.row + 0.5) * TILE_SIZE;
+
+          ctx.fillStyle = ex.isPower ? '#d946ef' : '#f97316';
+          ctx.beginPath();
+          ctx.roundRect(c.col * TILE_SIZE + 4, c.row * TILE_SIZE + 4, TILE_SIZE - 8, TILE_SIZE - 8, 12);
+          ctx.fill();
+
+          ctx.fillStyle = '#fef08a';
+          ctx.beginPath();
+          ctx.arc(cx, cy, TILE_SIZE * 0.28, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      // 6. Draw Flamethrower Streams
+      for (let i = 0; i < gameState.flameStreams.length; i++) {
+        const fs = gameState.flameStreams[i];
+        const alpha = Math.min(1, (fs.timer / fs.maxTimer) * 1.5);
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        for (let j = 0; j < fs.cells.length; j++) {
+          const c = fs.cells[j];
+          const cx = (c.col + 0.5) * TILE_SIZE;
+          const cy = (c.row + 0.5) * TILE_SIZE;
+          const r = TILE_SIZE * (0.36 + (j / 5) * 0.08);
+          ctx.fillStyle = '#f97316';
+          ctx.beginPath();
+          ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#fef08a';
+          ctx.beginPath();
+          ctx.arc(cx, cy, r * 0.55, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      // 7. Draw Detached Physical Armor Vests
+      for (let i = 0; i < gameState.detachedArmors.length; i++) {
+        const da = gameState.detachedArmors[i];
+        ctx.save();
+        ctx.globalAlpha = Math.min(1, da.life / 0.5);
+        ctx.fillStyle = 'rgba(0,0,0,0.45)';
+        ctx.beginPath();
+        ctx.ellipse(da.x, da.y + 10, 14, 5.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.translate(da.x, da.y - da.z);
+        ctx.rotate(da.rot);
+        ctx.scale(1.25, 1.25);
+        drawTacticalArmorVest(ctx, false, da.splitProgress * 4.5);
+        ctx.restore();
+      }
+
+      // 8. Draw Alive Characters (Prominent 1.28x Scale so fingers, shoes, trousers & layered outfits are crystal clear!)
+      const sortedPlayers = [...gameState.players]
+        .filter(p => p.alive && p.opacity > 0.01)
+        .sort((a, b) => a.y - b.y);
+
+      for (let i = 0; i < sortedPlayers.length; i++) {
+        const p = sortedPlayers[i];
+        if (!p.isAI) {
+          ctx.save();
+          ctx.strokeStyle = '#fb7185';
+          ctx.lineWidth = 2.8;
+          ctx.beginPath();
+          ctx.ellipse(p.x, p.y + 22, 23, 9.5, 0, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        if (p.isAI && gameState.phase === 'fadein') {
+          ctx.save();
+          ctx.strokeStyle = `rgba(192, 132, 252, ${p.opacity})`;
+          ctx.lineWidth = 2.4;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 32 * (1.3 - p.opacity * 0.3), 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        const flashAlpha = (p.invulnTimer > 0 && Math.floor(p.invulnTimer * 18) % 2 === 0) ? 0.45 : p.opacity;
+
+        drawChibiCharacter(ctx, p.x, p.y - 4, 1.28, p.charDef, {
+          dir: p.dir,
+          walkCycle: p.walkCycle,
+          isMoving: p.isMoving,
+          armor: p.armor,
+          opacity: flashAlpha,
+          weapon: p.weapon,
+          heldBomb: p.heldBomb,
+          actionPoseTimer: p.actionPoseTimer,
+          actionPoseType: p.actionPoseType,
+          blinking: p.blinkTimer < 0
+        });
+      }
+
+      // 9. Draw Parabolic Thrown Bombs
+      for (let i = 0; i < gameState.thrownBombs.length; i++) {
+        const tb = gameState.thrownBombs[i];
+        ctx.save();
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.8)';
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.arc(tb.targetX, tb.targetY, 20 * (1 - tb.progress * 0.4), 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+        ctx.beginPath();
+        ctx.ellipse(tb.x, tb.y + 10, 13, 5.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.translate(tb.x, tb.y - tb.z);
+        ctx.rotate(tb.progress * Math.PI * 4);
+        ctx.fillStyle = tb.isPower ? '#701a75' : '#0f172a';
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 2.6;
+        ctx.beginPath();
+        ctx.arc(0, 0, 16, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#facc15';
+        ctx.beginPath();
+        ctx.arc(8, -14, 4.8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // 10. Draw 10-Second Sky Drop Parachutes
+      for (let i = 0; i < gameState.skyDrops.length; i++) {
+        const sd = gameState.skyDrops[i];
+        const def = WEAPON_DEFS[sd.type];
+        ctx.save();
+        ctx.strokeStyle = def ? def.color : '#38bdf8';
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.arc(sd.x, sd.y, 20, 0, Math.PI * 2);
+        ctx.stroke();
+
+        const swayX = Math.sin(sd.swayPhase) * 8;
+        ctx.translate(sd.x + swayX, sd.y - sd.z);
+
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(-19, -25); ctx.lineTo(-6, 0);
+        ctx.moveTo(19, -25);  ctx.lineTo(6, 0);
+        ctx.stroke();
+
+        ctx.fillStyle = def ? def.color : '#38bdf8';
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, -25, 21, Math.PI, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#0f172a';
+        ctx.strokeStyle = '#f8fafc';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 4, 13, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // 11. Draw "Ascend to Heaven" Animations
+      for (let i = 0; i < gameState.ascensions.length; i++) {
+        drawAscensionEffect(ctx, gameState.ascensions[i]);
+      }
+
+      // 12. Draw Debris & Spark Particles
+      for (let i = 0; i < gameState.particles.length; i++) {
+        const pt = gameState.particles[i];
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, pt.life / pt.maxLife);
+        ctx.fillStyle = pt.color;
+        if (pt.isDebris) {
+          ctx.translate(pt.x, pt.y);
+          ctx.rotate(pt.rot || 0);
+          ctx.fillRect(-pt.r, -pt.r * 0.6, pt.r * 2, pt.r * 1.2);
+        } else {
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, pt.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      ctx.fillStyle = 'rgba(226, 232, 240, 0.25)';
+      for (let i = 0; i < gameState.dustMotes.length; i++) {
+        const m = gameState.dustMotes[i];
+        ctx.fillRect(m.x, m.y, m.r * 1.5, m.r * 1.5);
+      }
+
+      ctx.restore();
+
+      // 13. Sleek Corner Mini-Radar
+      if (gameState.phase === 'countdown' || gameState.phase === 'fadein' || gameState.phase === 'battle') {
+        drawMiniRadar(ctx, vw, vh);
+      }
+    }
+
+    function drawMiniRadar(ctx, vw, vh) {
+      const scale = vw < 500 ? 3.2 : 4.0;
+      const rw = GRID_COLS * scale;
+      const rh = GRID_ROWS * scale;
+      const rx = 12;
+      const ry = 54;
+
+      ctx.save();
+      ctx.fillStyle = 'rgba(9, 11, 20, 0.82)';
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.35)';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.roundRect(rx - 3, ry - 3, rw + 6, rh + 6, 6);
+      ctx.fill();
+      ctx.stroke();
+
+      for (let r = 0; r < GRID_ROWS; r++) {
+        for (let c = 0; c < GRID_COLS; c++) {
+          const t = mapGrid[r][c];
+          if (t === 1 || t === 3) {
+            ctx.fillStyle = 'rgba(100, 116, 139, 0.55)';
+            ctx.fillRect(rx + c * scale, ry + r * scale, scale, scale);
+          } else if (t === 2) {
+            ctx.fillStyle = 'rgba(217, 119, 6, 0.55)';
+            ctx.fillRect(rx + c * scale, ry + r * scale, scale, scale);
+          }
+        }
+      }
+
+      for (let i = 0; i < gameState.items.length; i++) {
+        const it = gameState.items[i];
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(rx + it.col * scale, ry + it.row * scale, scale, scale);
+      }
+
+      for (let i = 0; i < gameState.players.length; i++) {
+        const p = gameState.players[i];
+        if (!p.alive || p.opacity < 0.2) continue;
+        const px = rx + (p.x / TILE_SIZE) * scale;
+        const py = ry + (p.y / TILE_SIZE) * scale;
+        ctx.fillStyle = p.isAI ? '#f43f5e' : '#34d399';
+        ctx.beginPath();
+        ctx.arc(px, py, p.isAI ? 2.4 : 3.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // 15. CHARACTER SELECTION CARDS SETUP & BOOTSTRAP
+    // =========================================================================
+    function buildCharacterSelectionCards() {
+      const grid = document.getElementById('charGrid');
+      grid.innerHTML = '';
+
+      CHARACTERS.forEach(c => {
+        const card = document.createElement('div');
+        card.className = `char-card rounded-2xl p-3 bg-slate-900/90 border-2 flex flex-col items-center text-center ${
+          c.id === gameState.selectedCharId ? 'selected' : 'border-slate-700/70'
+        }`;
+
+        const cvs = document.createElement('canvas');
+        cvs.width = 104;
+        cvs.height = 104;
+        cvs.className = 'mb-1.5';
+        const cctx = cvs.getContext('2d');
+        // Render character without armor vest on card preview so the multi-layered coat, shirt, trousers, shoes & fingers are 100% visible!
+        drawChibiCharacter(cctx, 52, 58, 1.32, c, {
+          dir: { x: 0, y: 1 },
+          walkCycle: 0.55,
+          isMoving: true,
+          armor: 0,
+          opacity: 1,
+          weapon: null,
+          blinking: false
+        });
+
+        const nameEl = document.createElement('div');
+        nameEl.className = 'font-black text-sm sm:text-base text-white';
+        nameEl.textContent = c.name;
+
+        const subEl = document.createElement('div');
+        subEl.className = 'text-[11px] text-slate-400 mt-0.5';
+        subEl.textContent = c.title;
+
+        card.appendChild(cvs);
+        card.appendChild(nameEl);
+        card.appendChild(subEl);
+
+        card.addEventListener('click', () => {
+          sound.init();
+          sound.playPickup();
+          gameState.selectedCharId = c.id;
+          buildCharacterSelectionCards();
+        });
+
+        grid.appendChild(card);
+      });
+    }
+
+    function mainLoop(timestamp) {
+      if (!gameState.lastTime) gameState.lastTime = timestamp;
+      const dt = Math.min(0.04, (timestamp - gameState.lastTime) / 1000);
+      gameState.lastTime = timestamp;
+
+      updateGame(dt);
+      renderScene();
+      requestAnimationFrame(mainLoop);
+    }
+
+    window.onload = () => {
+      prebakeFurnitureSprites();
+      buildMap();
+      buildCharacterSelectionCards();
+      bindControls();
+      requestAnimationFrame(mainLoop);
+    };
+  </script>
 </body>
 </html>
